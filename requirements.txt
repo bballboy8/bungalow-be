@@ -1,0 +1,14 @@
+geohash2==1.1
+geojson==3.1.0
+importlib-resources==6.4.0
+jaraco.text==3.12.1
+packaging==24.1
+pillow==10.4.0
+pip-chill==1.0.3
+platformdirs==4.2.2
+pygeohash==1.2.0
+python-dateutil==2.9.0.post0
+rasterio==1.4.1
+requests==2.32.3
+shapely==2.0.6
+tomli==2.0.1
