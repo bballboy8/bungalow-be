@@ -25,6 +25,8 @@ import numpy as np
 import rasterio
 from rasterio.transform import from_bounds
 import argparse
+from tqdm import tqdm
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -63,10 +65,10 @@ def save_image(url, save_path):
         response.raise_for_status()
         with open(save_path, 'wb') as out_file:
             out_file.write(response.content)
-        logging.info(f"Image saved successfully at {save_path}")
+        # logging.info(f"Image saved successfully at {save_path}")
         return True
     except Exception as e:
-        logging.error(f"Failed to download image from {url}: {e}")
+        # logging.error(f"Failed to download image from {url}: {e}")
         return False
 
 # Function to get the corners of the geohash
@@ -84,7 +86,7 @@ def get_geohash_corners(geohash):
             "bottom_right": bottom_right
         }
     except Exception as e:
-        logging.error(f"Error getting geohash corners for {geohash}: {str(e)}")
+        # logging.error(f"Error getting geohash corners for {geohash}: {str(e)}")
         return None
 
 # Function to convert geohash to polygon
@@ -100,7 +102,7 @@ def geohash_to_polygon(geohash):
             (corners["top_left"][1], corners["top_left"][0])
         ])
     else:
-        logging.error(f"Cannot create polygon for geohash {geohash}. Corners are missing.")
+        # logging.error(f"Cannot create polygon for geohash {geohash}. Corners are missing.")
         return None
 
 # Function to generate an array of geohashes from a seed geohash
@@ -141,7 +143,7 @@ def read_bbox_from_geojson(geojson_path):
             # Return the points in a flat format (lon, lat pairs)
             return [bottom_left, bottom_right, top_right, top_left]
     except Exception as e:
-        logging.error(f"Error reading bounding box from GeoJSON file {geojson_path}: {e}")
+        # logging.error(f"Error reading bounding box from GeoJSON file {geojson_path}: {e}")
         return None
 
 
@@ -155,9 +157,9 @@ def remove_black_borders(img):
     diff = ImageChops.difference(img, bg)
     bbox = diff.getbbox()
     if bbox:
-        logging.info("Black borders detected and removed.")
+        # logging.info("Black borders detected and removed.")
         return img.crop(bbox)
-    logging.info("No black borders detected.")
+    # logging.info("No black borders detected.")
     return img
 
 # Function to georectify the image and save as GeoTIFF
@@ -165,7 +167,7 @@ def georectify_image(png_path, geojson_path, geotiffs_folder, image_prefix, imag
     """
     Georectify the PNG image, crop padding, upscale to target resolution, and save as a 2-band black and white GeoTIFF.
     """
-    logging.info(f"Starting georectification for {png_path} using GeoJSON at {geojson_path}")
+    # logging.info(f"Starting georectification for {png_path} using GeoJSON at {geojson_path}")
     try:
         # Open the image
         with Image.open(png_path) as img:
@@ -185,7 +187,7 @@ def georectify_image(png_path, geojson_path, geotiffs_folder, image_prefix, imag
             # Read bounding box from GeoJSON
             corners = read_bbox_from_geojson(geojson_path)
             if not corners:
-                logging.error("Failed to extract bounding box from GeoJSON.")
+                # logging.error("Failed to extract bounding box from GeoJSON.")
                 return
 
             # Extract bounding box coordinates for each corner
@@ -204,7 +206,7 @@ def georectify_image(png_path, geojson_path, geotiffs_folder, image_prefix, imag
             geotiff_name = f"{base_name}.tif"
             geotiff_path = os.path.join(geotiffs_folder, geotiff_name)
 
-            logging.info(f"Saving GeoTIFF to {geotiff_path}")
+            # logging.info(f"Saving GeoTIFF to {geotiff_path}")
 
             # Save the image as a 2-band GeoTIFF
             with rasterio.open(
@@ -220,10 +222,11 @@ def georectify_image(png_path, geojson_path, geotiffs_folder, image_prefix, imag
                 dst.write(img_array[:, :, 0], 1)  # Write first band
                 dst.write(img_array[:, :, 1], 2)  # Write second band
 
-            logging.info(f"GeoTIFF saved as {geotiff_path}")
+            # logging.info(f"GeoTIFF saved as {geotiff_path}")
 
     except Exception as e:
-        logging.error(f"Failed to georectify image {png_path}: {e}")
+        # logging.error(f"Failed to georectify image {png_path}: {e}")
+        pass
 
 
 # Function to search the SkyFi archive with pagination
@@ -251,21 +254,21 @@ def search_skyfi_archive(aoi, from_date, to_date, product_types):
         if response.status_code == 200:
             archives = response.json()
             if 'archives' in archives and archives['archives']:
-                logging.info(f"Results found: {len(archives['archives'])} on page {next_page} for date {from_date}")
+                # logging.info(f"Results found: {len(archives['archives'])} on page {next_page} for date {from_date}")
                 all_archives.extend(archives['archives'])
             else:
-                logging.info(f"No results found on page {next_page} for date {from_date}")
+                # logging.info(f"No results found on page {next_page} for date {from_date}")
                 break
             if 'nextPage' in archives and archives['nextPage'] is not None:
                 next_page = archives['nextPage']
-                logging.info(f"Moving to next page: {next_page} for date {from_date}")
+                # logging.info(f"Moving to next page: {next_page} for date {from_date}")
             else:
                 break
         elif response.status_code == 429:
-            logging.warning(f"Rate limit error: {response.status_code}. Response: {response.text}. Increasing wait time.")
+            # logging.warning(f"Rate limit error: {response.status_code}. Response: {response.text}. Increasing wait time.")
             time.sleep(1)
         else:
-            logging.error(f"Error: {response.status_code} - {response.text}. Payload: {json.dumps(payload)}")
+            # logging.error(f"Error: {response.status_code} - {response.text}. Payload: {json.dumps(payload)}")
             break
     return all_archives
 
@@ -288,10 +291,11 @@ def save_geojson(footprint_wkt, properties, filename):
         # Save GeoJSON to file
         with open(filename, 'w') as f:
             json.dump(geojson_data, f)
-        logging.info(f"GeoJSON saved as {filename}")
+        # logging.info(f"GeoJSON saved as {filename}")
 
     except Exception as e:
-        logging.error(f"Error converting WKT to geometry or saving GeoJSON: {e}")
+        pass
+        # logging.error(f"Error converting WKT to geometry or saving GeoJSON: {e}")
 
 # Function to generate date range
 def date_range(start_date, end_date, range_days):
@@ -307,22 +311,22 @@ def worker(geohash, single_date, throttle_time, results, geojson_folder, thumbna
     while retry_count < max_retries:
         polygon = geohash_to_polygon(geohash)
         if polygon is None:
-            logging.error(f"Failed to create polygon for geohash: {geohash}")
+            # logging.error(f"Failed to create polygon for geohash: {geohash}")
             return
         aoi = polygon.wkt
         from_date = single_date.strftime("%Y-%m-%dT00:00:00.000Z")
         to_date = single_date.strftime("%Y-%m-%dT23:59:59.000Z")
 
-        logging.info(f"Submitting request for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
+        # logging.info(f"Submitting request for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
 
         archives = search_skyfi_archive(aoi, from_date, to_date, product_types)
         if archives == 'rate_limit':
             throttle_time += 0.01
             time.sleep(throttle_time)
             retry_count += 1
-            logging.info(f"Retrying ({retry_count}/{max_retries}) for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
+            # logging.info(f"Retrying ({retry_count}/{max_retries}) for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
         elif archives:
-            logging.info(f"Found {len(archives)} results for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
+            # logging.info(f"Found {len(archives)} results for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
             for archive in archives:
                 capture_date = archive.get('captureTimestamp', '').split('T')[0]
                 filename_base = f"{capture_date}_{geohash}_{archive.get('provider', '')}_{archive.get('archiveId', '')}"
@@ -339,23 +343,26 @@ def worker(geohash, single_date, throttle_time, results, geojson_folder, thumbna
                     if thumbnail_url:
                         thumbnail_filename = os.path.join(thumbnails_folder, f"{filename_base}.jpg")
                         if save_image(thumbnail_url, thumbnail_filename):
-                            logging.info(f"Thumbnail downloaded successfully: {thumbnail_filename}")
+                            # logging.info(f"Thumbnail downloaded successfully: {thumbnail_filename}")
 
                             # Georectify using GeoJSON file
-                            logging.info(f"Calling georectify_image for {thumbnail_filename} with GeoJSON: {geojson_filename}")
+                            # logging.info(f"Calling georectify_image for {thumbnail_filename} with GeoJSON: {geojson_filename}")
                             georectify_image(thumbnail_filename, geojson_filename, geotiffs_folder, archive.get('provider', ''), archive.get('archiveId', ''), capture_date, (512, 512))
                         else:
-                            logging.error(f"Failed to download thumbnail for archive ID {archive.get('archiveId', '')}")
+                            # logging.error(f"Failed to download thumbnail for archive ID {archive.get('archiveId', '')}")
+                            pass
                 else:
-                    logging.error(f"GeoJSON file {geojson_filename} does not exist. Georectification skipped.")
+                    # logging.error(f"GeoJSON file {geojson_filename} does not exist. Georectification skipped.")
+                    pass
 
                 results.append(archive)
             break
         else:
-            logging.info(f"No results found for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
+            # logging.info(f"No results found for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
             break
     if retry_count == max_retries:
-        logging.error(f"Max retries reached for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
+        pass
+        # logging.error(f"Max retries reached for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
 
 def skyfi_executor(
    START_DATE_STR,
@@ -371,10 +378,12 @@ def skyfi_executor(
     end_date = datetime.strptime(END_DATE_STR, '%Y-%m-%d')
 
     # Log search criteria
-    logging.info(f"Starting search with mode: {mode} using geohash input {geohash_input if mode == 'array' else geohash_seed} "
-                f"between dates {START_DATE_STR} and {END_DATE_STR}.")
+    # logging.info(f"Starting search with mode: {mode} using geohash input {geohash_input if mode == 'array' else geohash_seed} "
+    #             f"between dates {START_DATE_STR} and {END_DATE_STR}.")
     throttle_time = 0.001
     results = []
+
+    duration = (end_date - start_date).days + 1
 
     # Determine the list of geohashes to process based on the input mode
     if mode == "array":
@@ -383,30 +392,38 @@ def skyfi_executor(
         geohashes = generate_geohashes(geohash_seed, geohash_length)
 
     # Create a thread pool executor
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = []
+    description = f"Processing Skyfi for: {START_DATE_STR} to {END_DATE_STR}"
 
-        # Loop through each geohash
-        for geohash in geohashes:
-            # Loop through each date in the date range
-            for single_date in date_range(start_date, end_date, RANGE_DAYS):
-                # Submit a task to the executor for each geohash-date combination
-                future = executor.submit(worker, geohash, single_date, throttle_time, results, GEOJSON_FOLDER, THUMBNAILS_FOLDER, GEOTIFFS_FOLDER)
-                futures.append(future)
+    with tqdm(total=len(geohashes*duration), desc=description, unit="geohash",position=3, leave=False) as pbar:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = []
 
-        # Ensure all futures are completed
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                future.result()
-            except Exception as e:
-                logging.error(f"Error processing future: {e}")
 
-    logging.info(f"Results processing completed.")
+            for geohash in geohashes:
+                # Loop through each date in the date range
+                for single_date in date_range(start_date, end_date, RANGE_DAYS):
+                    # Submit a task to the executor for each geohash-date combination
+                    future = executor.submit(worker, geohash, single_date, throttle_time, results, GEOJSON_FOLDER, THUMBNAILS_FOLDER, GEOTIFFS_FOLDER)
+                    futures.append(future)
+
+            # Ensure all futures are completed
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    # logging.error(f"Error processing future: {e}")
+                    pass
+                pbar.update(1)
+                pbar.refresh()
+
+            
+        tqdm.write("Completed Skyfi Processing")
+
+
     
 
 # Example usage
 if __name__ == "__main__":
-    print("Starting SkyFi Archive search...")
     argument_parser = argparse.ArgumentParser(description='Skyfi Catelog API Executor')
     argument_parser.add_argument('--start-date', required=True, help='Start date')
     argument_parser.add_argument('--end-date', required=True, help='End date')
@@ -432,7 +449,6 @@ if __name__ == "__main__":
     os.makedirs(thumbnails_folder, exist_ok=True)
     os.makedirs(geojson_folder, exist_ok=True)
     os.makedirs(geotiffs_folder, exist_ok=True)
-    print(f"Output folder created at {output_folder}")
     
     skyfi_executor(
         START_DATE,

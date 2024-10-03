@@ -14,7 +14,7 @@ scripts = [
 # Parameters to be passed to each script
 params = {
     'start_date': '2020-08-29',
-    'end_date': '2021-09-01',
+    'end_date': '2020-09-01',
     'lat': 40.7128,
     'long': -74.0060,
     'range': 100.0,
@@ -58,7 +58,8 @@ def run_script(script_name):
     result = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
     
     if result.returncode == 0:
-        print(f"{script_name} completed successfully.")
+        pass
+        # print(f"{script_name} completed successfully.")
     else:
         print(f"Error in {script_name}: {result.stderr}")
 

@@ -9,6 +9,8 @@ import json
 from dateutil import parser
 import argparse
 import os
+from tqdm import tqdm
+
 
 # Configuration
 API_KEY = 'F9FsJJG8UncZGjJ9UcYEqMJgw6TBUpMiNuMCjCtORhB2KV9gcKlD4TiR6ydvLCcLCtBJtZIA8RNha-U9tTVwbA=='
@@ -18,6 +20,8 @@ GEOHASH = 'w'
 ITEMS_PER_PAGE = 500
 START_PAGE = 1
 WORKSPACE = "public-pneo"
+
+
 
 
 # Set up logging
@@ -129,106 +133,111 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
         current_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-        while current_date <= end_date:
-            logging.info(f"Processing date: {current_date.strftime('%Y-%m-%d')}")
-            total_items = 0
-            current_page = START_PAGE
+        date_difference = end_date - current_date
 
-            while True:
-                start_date_str = current_date.strftime('%Y-%m-%dT00:00:00.000Z')
-                end_date_str = current_date.strftime('%Y-%m-%dT23:59:59.999Z')
+        description = f"Processing Airbus for Dates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+        with tqdm(total=date_difference.days, desc=description, unit="day", position=0, leave=False) as pbar:
+            while current_date <= end_date:
+                total_items = 0
+                current_page = START_PAGE
 
-                querystring = {
-                    "bbox": bbox_str,
-                    "acquisitionDate": f"[{start_date_str},{end_date_str}]",
-                    "itemsPerPage": ITEMS_PER_PAGE,
-                    "startPage": current_page,
-                    "workspace": WORKSPACE
-                }
+                while True:
+                    start_date_str = current_date.strftime('%Y-%m-%dT00:00:00.000Z')
+                    end_date_str = current_date.strftime('%Y-%m-%dT23:59:59.999Z')
 
-                # Make a GET request to the search endpoint
-                search_response = requests.get(
-                    'https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch',
-                    headers=search_headers,
-                    params=querystring
-                )
+                    querystring = {
+                        "bbox": bbox_str,
+                        "acquisitionDate": f"[{start_date_str},{end_date_str}]",
+                        "itemsPerPage": ITEMS_PER_PAGE,
+                        "startPage": current_page,
+                        "workspace": WORKSPACE
+                    }
 
-                if search_response.status_code == 200:
-                    response_data = search_response.json()
+                    # Make a GET request to the search endpoint
+                    search_response = requests.get(
+                        'https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch',
+                        headers=search_headers,
+                        params=querystring
+                    )
 
-                    # Process each feature and write to CSV and GeoJSON
-                    features = response_data.get('features', [])
-                    total_items += len(features)
+                    if search_response.status_code == 200:
+                        response_data = search_response.json()
 
-                    for feature in features:
-                        properties = feature.get('properties', {})
-                        geometry = feature.get('geometry', {})
+                        # Process each feature and write to CSV and GeoJSON
+                        features = response_data.get('features', [])
+                        total_items += len(features)
 
-                        # Format dates and numeric values
-                        acquisition_date = format_datetime(properties.get('acquisitionDate', ''))
-                        publication_date = format_datetime(properties.get('publicationDate', ''))
-                        withhold_readable, withhold_hours = calculate_withhold_time(
-                            properties.get('acquisitionDate', ''), properties.get('publicationDate', ''))
+                        for feature in features:
+                            properties = feature.get('properties', {})
+                            geometry = feature.get('geometry', {})
 
-                        incidence_angle = format_float(properties.get('incidenceAngle', ''), 2)
-                        azimuth_angle = format_float(properties.get('azimuthAngle', ''), 2)
+                            # Format dates and numeric values
+                            acquisition_date = format_datetime(properties.get('acquisitionDate', ''))
+                            publication_date = format_datetime(properties.get('publicationDate', ''))
+                            withhold_readable, withhold_hours = calculate_withhold_time(
+                                properties.get('acquisitionDate', ''), properties.get('publicationDate', ''))
 
-                        # Sanitize values for CSV output
-                        csv_writer.writerow([
-                            properties.get('acquisitionIdentifier', ''),
-                            json.dumps(geometry),
-                            acquisition_date,
-                            publication_date,
-                            properties.get('platform', ''),
-                            properties.get('sensorType', ''),
-                            properties.get('resolution', ''),
-                            properties.get('constellation', ''),
-                            properties.get('cloudCover', ''),
-                            incidence_angle,
-                            azimuth_angle,
-                            withhold_readable,
-                            withhold_hours
-                        ])
+                            incidence_angle = format_float(properties.get('incidenceAngle', ''), 2)
+                            azimuth_angle = format_float(properties.get('azimuthAngle', ''), 2)
 
-                        # Add properties back with formatted angles and withhold
-                        geojson_feature = {
-                            "type": "Feature",
-                            "geometry": geometry,
-                            "properties": {
-                                "acquisitionIdentifier": sanitize_value(properties.get('acquisitionIdentifier', '')),
-                                "acquisitionDate": acquisition_date,
-                                "publicationDate": publication_date,
-                                "productPlatform": sanitize_value(properties.get('platform', '')),
-                                "sensorType": sanitize_value(properties.get('sensorType', '')),
-                                "resolution": sanitize_value(properties.get('resolution', '')),
-                                "constellation": sanitize_value(properties.get('constellation', '')),
-                                "cloudCover": sanitize_value(properties.get('cloudCover', '')),
-                                "incidenceAngle": incidence_angle,
-                                "azimuthAngle": azimuth_angle,
-                                "withholdReadable": withhold_readable,
-                                "withholdHours": withhold_hours
+                            # Sanitize values for CSV output
+                            csv_writer.writerow([
+                                properties.get('acquisitionIdentifier', ''),
+                                json.dumps(geometry),
+                                acquisition_date,
+                                publication_date,
+                                properties.get('platform', ''),
+                                properties.get('sensorType', ''),
+                                properties.get('resolution', ''),
+                                properties.get('constellation', ''),
+                                properties.get('cloudCover', ''),
+                                incidence_angle,
+                                azimuth_angle,
+                                withhold_readable,
+                                withhold_hours
+                            ])
+
+                            # Add properties back with formatted angles and withhold
+                            geojson_feature = {
+                                "type": "Feature",
+                                "geometry": geometry,
+                                "properties": {
+                                    "acquisitionIdentifier": sanitize_value(properties.get('acquisitionIdentifier', '')),
+                                    "acquisitionDate": acquisition_date,
+                                    "publicationDate": publication_date,
+                                    "productPlatform": sanitize_value(properties.get('platform', '')),
+                                    "sensorType": sanitize_value(properties.get('sensorType', '')),
+                                    "resolution": sanitize_value(properties.get('resolution', '')),
+                                    "constellation": sanitize_value(properties.get('constellation', '')),
+                                    "cloudCover": sanitize_value(properties.get('cloudCover', '')),
+                                    "incidenceAngle": incidence_angle,
+                                    "azimuthAngle": azimuth_angle,
+                                    "withholdReadable": withhold_readable,
+                                    "withholdHours": withhold_hours
+                                }
                             }
-                        }
-                        geojson_features.append(geojson_feature)
+                            geojson_features.append(geojson_feature)
 
-                    if len(features) < ITEMS_PER_PAGE:
-                        break  # No more pages to process
+                        if len(features) < ITEMS_PER_PAGE:
+                            break  # No more pages to process
 
-                else:
-                    logging.error(
-                        f"Failed to fetch images for {current_date.strftime('%Y-%m-%d')}: {search_response.text}")
-                    break  # Exit pagination loop on error
+                    else:
+                        # logging.error(
+                        #     f"Failed to fetch images for {current_date.strftime('%Y-%m-%d')}: {search_response.text}")
+                        break  # Exit pagination loop on error
 
-                current_page += 1
-                time.sleep(1.1)  # Delay for 1.1 seconds between each API call
+                    current_page += 1
+                    time.sleep(1.1)  # Delay for 1.1 seconds between each API call
 
-            logging.info(f"Completed processing for {current_date.strftime('%Y-%m-%d')} with {total_items} items found")
-            current_date += timedelta(days=1)
+                current_date += timedelta(days=1)
+
+                pbar.update(1)
+                pbar.refresh()
+            tqdm.write("Completed Processing Airbus")
 
         # Write CSV output to a file after all processing is complete
         with open(output_csv_file, 'w', newline='') as csv_file:
             csv_file.write(csv_output.getvalue())
-        logging.info(f"CSV results written to {output_csv_file}")
 
         # Write GeoJSON output to a file after all processing is complete
         geojson_data = {
@@ -237,23 +246,21 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
         }
         with open(output_geojson_file, 'w') as geojson_file:
             json.dump(geojson_data, geojson_file, indent=2)
-        logging.info(f"GeoJSON results written to {output_geojson_file}")
-
     else:
-        logging.error(f"Failed to authenticate: {auth_response.text}")
+        # logging.error(f"Failed to authenticate: {auth_response.text}")
+        pass
 
 
 if __name__ == "__main__":
-    logging.info(f"Processing Airbus Catelog api")
-    parser = argparse.ArgumentParser(description='Airbus Catalog API Executor')
-    parser.add_argument('--start-date', required=True, help='Start date')
-    parser.add_argument('--end-date', required=True, help='End date')
-    parser.add_argument('--lat', required=True, type=float, help='Latitude')
-    parser.add_argument('--long', required=True, type=float, help='Longitude')
-    parser.add_argument('--range', required=True, type=float, help='Range value')
-    parser.add_argument('--output-dir', required=True, help='Output directory')
+    parser_argument = argparse.ArgumentParser(description='Airbus Catalog API Executor')
+    parser_argument.add_argument('--start-date', required=True, help='Start date')
+    parser_argument.add_argument('--end-date', required=True, help='End date')
+    parser_argument.add_argument('--lat', required=True, type=float, help='Latitude')
+    parser_argument.add_argument('--long', required=True, type=float, help='Longitude')
+    parser_argument.add_argument('--range', required=True, type=float, help='Range value')
+    parser_argument.add_argument('--output-dir', required=True, help='Output directory')
 
-    args = parser.parse_args()
+    args = parser_argument.parse_args()
     START_DATE = args.start_date
     END_DATE = args.end_date
 
