@@ -14,7 +14,7 @@ scripts = [
 # Parameters to be passed to each script
 params = {
     'start_date': '2020-08-29',
-    'end_date': '2020-09-01',
+    'end_date': '2021-09-01',
     'lat': 40.7128,
     'long': -74.0060,
     'range': 100.0,
@@ -26,7 +26,7 @@ def check_directory_permissions(output_dir):
     if not os.path.exists(output_dir):
         try:
             # Attempt to create the directory
-            os.makedirs(output_dir)
+            os.makedirs(output_dir, exist_ok=True)
             print(f"Directory {output_dir} created successfully.")
         except Exception as e:
             print(f"Error creating directory {output_dir}: {e}")
