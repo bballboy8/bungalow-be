@@ -418,7 +418,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
         current_date = batch_end_date + timedelta(days=1)
 
 
-def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword):
+def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon):
     for location in locations:
         sanitized_name = sanitize_filename(location['name'])
         location_output_folder = os.path.join(output_folder, sanitized_name)
@@ -436,7 +436,7 @@ def process_locations(locations, start_date, end_date, access_token, output_fold
 
         logging.info(f"Processing location: {location['name']}")
 
-        search_images(location['lat'], location['lon'], BBOX_SIZE, start_date, end_date, access_token,
+        search_images(lat, lon, BBOX_SIZE, start_date, end_date, access_token,
                       location_output_folder, sanitized_name, filter_keyword, csv_file_path)
 
 
@@ -555,6 +555,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     START_DATE = args.start_date
     END_DATE = args.end_date
+    LAT = args.lat
+    LON = args.long
     base_output_folder = args.output_dir + f"/capella/{START_DATE}_{END_DATE}"
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"
@@ -565,7 +567,7 @@ if __name__ == "__main__":
 
         if MODE == "location":
             # Process locations
-            process_locations(LOCATIONS, START_DATE, END_DATE, access_token, base_output_folder, FILTER_KEYWORD)
+            process_locations(LOCATIONS, START_DATE, END_DATE, access_token, base_output_folder, FILTER_KEYWORD, LAT, LON)
         elif MODE == "geohash":
             # Process geohashes
             geo_hash_handler(
