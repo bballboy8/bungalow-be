@@ -263,11 +263,11 @@ def main(START_DATE, END_DATE, OUTPUT_DIR):
 
             current_date += timedelta(days=1)
 
-            pbar.update(1)
             pbar.refresh()
+            pbar.update(1)
 
-        tqdm.write("Completed processing Planet data")
-        pbar.close()
+        pbar.clear()
+    tqdm.write("Completed processing Planet data")
 
     # Save all collected features to files after processing all days
     save_features_to_files(all_features, OUTPUT_DIR)
