@@ -294,11 +294,11 @@ def save_geojson(footprint_wkt, properties, filename):
         logging.error(f"Error converting WKT to geometry or saving GeoJSON: {e}")
 
 # Function to generate date range
-def date_range(start_date, end_date):
+def date_range(start_date, end_date, range_days):
     current_date = start_date
     while current_date <= end_date:
         yield current_date
-        current_date += timedelta(days=30)
+        current_date += timedelta(days=range_days)
 
 # Worker function for threading
 def worker(geohash, single_date, throttle_time, results, geojson_folder, thumbnails_folder, geotiffs_folder):
@@ -362,7 +362,8 @@ def skyfi_executor(
    END_DATE_STR,
     THUMBNAILS_FOLDER,
     GEOJSON_FOLDER,
-    GEOTIFFS_FOLDER
+    GEOTIFFS_FOLDER,
+    RANGE_DAYS=30
 ):
         
     # Convert the start and end dates to datetime objects
@@ -388,7 +389,7 @@ def skyfi_executor(
         # Loop through each geohash
         for geohash in geohashes:
             # Loop through each date in the date range
-            for single_date in date_range(start_date, end_date):
+            for single_date in date_range(start_date, end_date, RANGE_DAYS):
                 # Submit a task to the executor for each geohash-date combination
                 future = executor.submit(worker, geohash, single_date, throttle_time, results, GEOJSON_FOLDER, THUMBNAILS_FOLDER, GEOTIFFS_FOLDER)
                 futures.append(future)
@@ -417,6 +418,7 @@ if __name__ == "__main__":
     args = argument_parser.parse_args()
     START_DATE = args.start_date
     END_DATE = args.end_date
+    RANGE = args.range
         
     # Output folder variable
     output_folder = args.output_dir + f"/skyfi/{START_DATE}_{END_DATE}"
@@ -437,6 +439,7 @@ if __name__ == "__main__":
         END_DATE,
         thumbnails_folder,
         geojson_folder,
-        geotiffs_folder
+        geotiffs_folder,
+        RANGE
     )
     

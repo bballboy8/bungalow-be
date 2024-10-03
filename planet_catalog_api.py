@@ -275,6 +275,8 @@ if __name__ == "__main__":
     START_DATE = args.start_date
     END_DATE = args.end_date
     OUTPUT_DIR = args.output_dir + f"/planet/{START_DATE}_{END_DATE}"
+    # Check if the directory exists
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     main(
         START_DATE,
         END_DATE,
