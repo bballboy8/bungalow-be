@@ -374,6 +374,7 @@ def worker(geohash, single_date, throttle_time, results, geojson_folder, thumbna
 def skyfi_executor(
    START_DATE_STR,
    END_DATE_STR,
+    OUTPUT_DIR,
     THUMBNAILS_FOLDER,
     GEOJSON_FOLDER,
     GEOTIFFS_FOLDER,
@@ -401,7 +402,7 @@ def skyfi_executor(
 
     # Create a thread pool executor
     print("-"*columns)
-    description = f"Processing Skyfi Catalog \nDate Range: {start_date.date()} to {end_date.date()}"
+    description = f"Processing Skyfi Catalog \nDate Range: {start_date.date()} to {end_date.date()} \nOutput Directory: {OUTPUT_DIR}"
     print(description)
     print("-"*columns)
 
@@ -465,6 +466,7 @@ if __name__ == "__main__":
     skyfi_executor(
         START_DATE,
         END_DATE,
+        output_folder,
         thumbnails_folder,
         geojson_folder,
         geotiffs_folder,

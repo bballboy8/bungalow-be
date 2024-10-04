@@ -428,11 +428,11 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
 def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon):
 
     print("-"*columns)
-    description = f"Processing Capella Locations for:\n {start_date} to {end_date} \n lat: {lat} and lon: {lon}"
+    description = f"Processing Capella Locations:\nDate Range {start_date} to {end_date} \n lat: {lat} and lon: {lon} \nOutput Directory: {output_folder}"
     print(description)
     print("-"*columns)
 
-    with tqdm(total=len(locations), desc="", unit="days") as pbar:
+    with tqdm(total=len(locations), desc="", unit="day") as pbar:
  
         for location in locations:
             sanitized_name = sanitize_filename(location['name'])
@@ -488,10 +488,10 @@ def process_geojson_files(geojson_folder, start_date, end_date, access_token, ou
 
         duration = (end_date_dt - current_date).days + 1
         print("-"*columns)
-        description = f"Processing Capella for GeoJSON:\n{geojson_file}\nfrom {start_date} to {end_date}"
+        description = f"Processing Capella Catalog GeoJSON:\n Date Range {start_date} to {end_date} \nOutput Directory: {output_folder_for_geojson}"
         print(description)
         print("-"*columns)
-        with tqdm(total=duration, desc="", unit="days",position=1, leave=False) as pbar:
+        with tqdm(total=duration, desc="", unit="day") as pbar:
 
             while current_date <= end_date_dt:
                 batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
@@ -553,12 +553,12 @@ def geo_hash_handler(
 
         print("-"*columns)
 
-        description = f"Processing Capella for Date Range: {start_date} to {end_date} "
+        description = f"Processing Capella Geo Hashes\nDate Range: {start_date} to {end_date}\nOutput Directory: {base_output_folder}"
         print(description)
 
         print("-"*columns)
 
-        with tqdm(total=duration, desc="", unit="days",position=1, leave=False) as pbar:
+        with tqdm(total=duration, desc="", unit="day") as pbar:
 
             while current_date <= end_date_dt:
                 batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)

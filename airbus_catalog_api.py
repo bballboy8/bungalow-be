@@ -138,14 +138,15 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
         current_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-        date_difference = end_date - current_date
+        date_difference =  (end_date - current_date).days + 1
+
         print("-" * columns)
-        description = f"Processing Airbus for Dates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')} \nOutput Directory: {OUTPUT_DIR}"
+        description = f"Processing Airbus Catalog\nDates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')} \nOutput Directory: {OUTPUT_DIR}"
         print(description)
 
         print("-" * columns)
 
-        with tqdm(total=date_difference.days, desc="", unit="day") as pbar:
+        with tqdm(total=date_difference, desc="", unit="day") as pbar:
             while current_date <= end_date:
                 total_items = 0
                 current_page = START_PAGE
@@ -242,6 +243,7 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
 
                 pbar.update(1)
                 pbar.refresh()
+
         tqdm.write("Completed Processing Airbus")
 
         # Write CSV output to a file after all processing is complete

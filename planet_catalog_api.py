@@ -248,11 +248,11 @@ def main(START_DATE, END_DATE, OUTPUT_DIR):
     duration = (end_date - current_date).days + 1
     all_features = []  # Collect all features for all dates
     print("-"*columns)
-    description = f"Processing Planet Catalog \nDate Range: {current_date.date()} to {end_date.date()}"
+    description = f"Processing Planet Catalog \nDate Range: {current_date.date()} to {end_date.date()} \nOutput Directory: {OUTPUT_DIR}"
     print(description)
     print("-"*columns)
     # Iterate over each day in the date range
-    with tqdm(total=duration, desc="", unit="days") as pbar:
+    with tqdm(total=duration, desc="", unit="day") as pbar:
 
         while current_date <= end_date:
             start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
