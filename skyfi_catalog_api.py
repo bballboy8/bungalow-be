@@ -26,6 +26,8 @@ import rasterio
 from rasterio.transform import from_bounds
 import argparse
 from tqdm import tqdm
+import threading
+
 
 import shutil
 
@@ -395,6 +397,7 @@ def skyfi_executor(
         geohashes = geohash_input
     elif mode == "length":
         geohashes = generate_geohashes(geohash_seed, geohash_length)
+    tqdm_lock = threading.Lock()
 
     # Create a thread pool executor
     print("-"*columns)
@@ -402,7 +405,7 @@ def skyfi_executor(
     print(description)
     print("-"*columns)
 
-    with tqdm(total=len(geohashes*duration), desc="", unit="geohash") as pbar:
+    with tqdm(total=len(geohashes), desc="", unit="geohash") as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
 
@@ -421,8 +424,9 @@ def skyfi_executor(
                 except Exception as e:
                     # logging.error(f"Error processing future: {e}")
                     pass
-                pbar.update(1)
-                pbar.refresh()
+                with tqdm_lock:
+                    pbar.update(1)
+                    pbar.refresh()
 
             
         tqdm.write("Completed Skyfi Processing")
