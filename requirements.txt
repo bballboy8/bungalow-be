@@ -12,3 +12,4 @@ rasterio==1.4.1
 requests==2.32.3
 shapely==2.0.6
 tomli==2.0.1
+tqdm==4.66.5
