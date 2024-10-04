@@ -16,6 +16,11 @@ import re
 import argparse
 from tqdm import tqdm
 
+import shutil
+
+# Get the terminal size
+columns = shutil.get_terminal_size().columns
+
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -422,9 +427,12 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
 
 def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon):
 
-    description = f"Processing Capella Locations for: {start_date} to {end_date} with lat: {lat} and lon: {lon}"
+    print("-"*columns)
+    description = f"Processing Capella Locations for:\n {start_date} to {end_date} \n lat: {lat} and lon: {lon}"
+    print(description)
+    print("-"*columns)
 
-    with tqdm(total=len(locations), desc=description, unit="days",position=1, leave=False) as pbar:
+    with tqdm(total=len(locations), desc="", unit="days") as pbar:
  
         for location in locations:
             sanitized_name = sanitize_filename(location['name'])
@@ -479,10 +487,11 @@ def process_geojson_files(geojson_folder, start_date, end_date, access_token, ou
         end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
 
         duration = (end_date_dt - current_date).days + 1
-
-        description = f"Processing Capella for GeoJSON: {geojson_file} from {start_date} to {end_date}"
-        
-        with tqdm(total=duration, desc=description, unit="days",position=1, leave=False) as pbar:
+        print("-"*columns)
+        description = f"Processing Capella for GeoJSON:\n{geojson_file}\nfrom {start_date} to {end_date}"
+        print(description)
+        print("-"*columns)
+        with tqdm(total=duration, desc="", unit="days",position=1, leave=False) as pbar:
 
             while current_date <= end_date_dt:
                 batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
@@ -542,9 +551,14 @@ def geo_hash_handler(
 
         duration = (end_date_dt - current_date).days + 1
 
-        description = f"Processing Capella for Date Range: {start_date} to {end_date}"
+        print("-"*columns)
 
-        with tqdm(total=duration, desc=description, unit="days",position=1, leave=False) as pbar:
+        description = f"Processing Capella for Date Range: {start_date} to {end_date} "
+        print(description)
+
+        print("-"*columns)
+
+        with tqdm(total=duration, desc="", unit="days",position=1, leave=False) as pbar:
 
             while current_date <= end_date_dt:
                 batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)

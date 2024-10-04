@@ -11,6 +11,11 @@ import argparse
 import os
 from tqdm import tqdm
 
+import shutil
+
+# Get the terminal size
+columns = shutil.get_terminal_size().columns
+
 
 # Configuration
 API_KEY = 'F9FsJJG8UncZGjJ9UcYEqMJgw6TBUpMiNuMCjCtORhB2KV9gcKlD4TiR6ydvLCcLCtBJtZIA8RNha-U9tTVwbA=='
@@ -134,9 +139,13 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
         date_difference = end_date - current_date
+        print("-" * columns)
+        description = f"Processing Airbus for Dates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')} \nOutput Directory: {OUTPUT_DIR}"
+        print(description)
 
-        description = f"Processing Airbus for Dates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
-        with tqdm(total=date_difference.days, desc=description, unit="day", position=0, leave=False) as pbar:
+        print("-" * columns)
+
+        with tqdm(total=date_difference.days, desc="", unit="day") as pbar:
             while current_date <= end_date:
                 total_items = 0
                 current_page = START_PAGE
@@ -233,7 +242,7 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
 
                 pbar.update(1)
                 pbar.refresh()
-            tqdm.write("Completed Processing Airbus")
+        tqdm.write("Completed Processing Airbus")
 
         # Write CSV output to a file after all processing is complete
         with open(output_csv_file, 'w', newline='') as csv_file:
@@ -247,7 +256,7 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
         with open(output_geojson_file, 'w') as geojson_file:
             json.dump(geojson_data, geojson_file, indent=2)
     else:
-        # logging.error(f"Failed to authenticate: {auth_response.text}")
+        logging.error(f"Failed to authenticate: {auth_response.text}")
         pass
 
 

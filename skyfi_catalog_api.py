@@ -27,6 +27,11 @@ from rasterio.transform import from_bounds
 import argparse
 from tqdm import tqdm
 
+import shutil
+
+# Get the terminal size
+columns = shutil.get_terminal_size().columns
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -392,9 +397,12 @@ def skyfi_executor(
         geohashes = generate_geohashes(geohash_seed, geohash_length)
 
     # Create a thread pool executor
-    description = f"Processing Skyfi for: {START_DATE_STR} to {END_DATE_STR}"
+    print("-"*columns)
+    description = f"Processing Skyfi Catalog \nDate Range: {start_date.date()} to {end_date.date()}"
+    print(description)
+    print("-"*columns)
 
-    with tqdm(total=len(geohashes*duration), desc=description, unit="geohash",position=3, leave=False) as pbar:
+    with tqdm(total=len(geohashes*duration), desc="", unit="geohash") as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
 

@@ -16,7 +16,10 @@ import argparse
 import os
 from tqdm import tqdm
 
+import shutil
 
+# Get the terminal size
+columns = shutil.get_terminal_size().columns
 
 # Input configuration
 API_KEY = 'PLAKba216105b17b4dbda5e1cdfec67ba836'
@@ -243,11 +246,13 @@ def main(START_DATE, END_DATE, OUTPUT_DIR):
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
 
     duration = (end_date - current_date).days + 1
-
     all_features = []  # Collect all features for all dates
-    description = f"Processing Planet for Date Range: {current_date} to {end_date}"
+    print("-"*columns)
+    description = f"Processing Planet Catalog \nDate Range: {current_date.date()} to {end_date.date()}"
+    print(description)
+    print("-"*columns)
     # Iterate over each day in the date range
-    with tqdm(total=duration, desc=description, unit="days",position=2, leave=False) as pbar:
+    with tqdm(total=duration, desc="", unit="days") as pbar:
 
         while current_date <= end_date:
             start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
