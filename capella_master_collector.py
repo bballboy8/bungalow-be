@@ -14,6 +14,12 @@ from datetime import datetime, timedelta
 import csv
 import re
 import argparse
+from tqdm import tqdm
+
+import shutil
+
+# Get the terminal size
+columns = shutil.get_terminal_size().columns
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -142,11 +148,10 @@ def get_access_token(username, password):
         response.raise_for_status()
 
         token_info = response.json()
-        logging.info("Authenticated successfully.")
         return token_info
 
     except requests.RequestException as e:
-        logging.error(f"Failed to retrieve token: {e}")
+        # logging.error(f"Failed to retrieve token: {e}")
         return None
 
 def sanitize_filename(name):
@@ -244,7 +249,8 @@ def georectify_image(png_path, bbox, geotiffs_folder, geojsons_folder, image_pre
                 geojson.dump(geojson_data, geojson_file)
 
     except Exception as e:
-        logging.error(f"Failed to georectify image {png_path}: {e}")
+        # logging.error(f"Failed to georectify image {png_path}: {e}")
+        pass
 
 def save_image(url, save_path):
     try:
@@ -254,7 +260,7 @@ def save_image(url, save_path):
             out_file.write(response.content)
         return True
     except Exception as e:
-        logging.error(f"Failed to download image from {url}: {e}")
+        # logging.error(f"Failed to download image from {url}: {e}")
         return False
 
 def download_thumbnail(feature, output_folder, image_prefix, date, filter_keyword):
@@ -269,7 +275,7 @@ def download_thumbnail(feature, output_folder, image_prefix, date, filter_keywor
         return False
 
     if filter_keyword in image_id:
-        logging.info(f"Found thumbnail for image ID {image_id} on {date}")
+        # logging.info(f"Found thumbnail for image ID {image_id} on {date}")
 
         if save_image(thumbnail_url, os.path.join(output_folder, f"{image_prefix}_{date}_{image_id[-8:]}.png")):
             georectify_image(
@@ -277,10 +283,11 @@ def download_thumbnail(feature, output_folder, image_prefix, date, filter_keywor
                 bbox, os.path.join(output_folder, "geotiffs"), os.path.join(output_folder, "geojsons"),
                 image_prefix, image_id, date, TARGET_RESOLUTION
             )
-            logging.info(f"Successfully downloaded and processed thumbnail for image ID {image_id} on {date}")
+            # logging.info(f"Successfully downloaded and processed thumbnail for image ID {image_id} on {date}")
             return True
         else:
-            logging.error(f"Failed to download thumbnail for image ID {image_id} on {date}")
+            # logging.error(f"Failed to download thumbnail for image ID {image_id} on {date}")
+            pass
     return False
 
 def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
@@ -306,21 +313,21 @@ def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
             return response.json()
 
         except requests.RequestException as e:
-            logging.error(f"API request failed: {e}")
+            # logging.error(f"API request failed: {e}")
             retry_count += 1
 
             if retry_count >= RETRY_LIMIT:
-                logging.error(f"Max retries reached. Exiting after {retry_count} attempts.")
+                # logging.error(f"Max retries reached. Exiting after {retry_count} attempts.")
                 break
 
             # Attempt to get a new token and retry
-            logging.info("Attempting to get a new access token...")
+            # logging.info("Attempting to get a new access token...")
             token_info = get_access_token(USERNAME, PASSWORD)
             if token_info:
                 access_token = token_info["accessToken"]
-                logging.info(f"New token acquired. Retrying... ({retry_count}/{RETRY_LIMIT})")
+                # logging.info(f"New token acquired. Retrying... ({retry_count}/{RETRY_LIMIT})")
             else:
-                logging.error("Failed to obtain new access token. Pausing for 10 minutes...")
+                # logging.error("Failed to obtain new access token. Pausing for 10 minutes...")
                 time.sleep(600)  # Sleep for 10 minutes before retrying
 
             time.sleep(300)
@@ -329,7 +336,7 @@ def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
 
 def process_features(api_result, writer, thumbnails_folder, geotiffs_folder, geojsons_folder, date):
     if not api_result or 'features' not in api_result or not api_result['features']:
-        logging.warning("No data to write to CSV. Skipping...")
+        # logging.warning("No data to write to CSV. Skipping...")
         return
 
     identified_count = len(api_result['features'])
@@ -365,7 +372,7 @@ def process_features(api_result, writer, thumbnails_folder, geotiffs_folder, geo
                              datetime_obj.strftime('%Y-%m-%d'), TARGET_RESOLUTION)
             success_count += 1
         else:
-            logging.error(f"Failed to process thumbnail for feature ID {feature_id}")
+            # logging.error(f"Failed to process thumbnail for feature ID {feature_id}")
             failure_count += 1
 
         # Write data to CSV
@@ -381,9 +388,9 @@ def process_features(api_result, writer, thumbnails_folder, geotiffs_folder, geo
             'thumbnail_url': thumbnail_url
         })
 
-    logging.info(f"Date {date}: Identified {identified_count} thumbnails, "
-                 f"Successfully downloaded {success_count}, "
-                 f"Failed {failure_count}")
+    # logging.info(f"Date {date}: Identified {identified_count} thumbnails, "
+    #              f"Successfully downloaded {success_count}, "
+    #              f"Failed {failure_count}")
 
 def search_images(lat, lon, bbox_size, start_date, end_date, access_token, output_folder, image_prefix, filter_keyword, csv_file_path):
     # Use the passed-in output_folder for location-specific output
@@ -398,7 +405,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
 
     while current_date <= end_date_dt:
         batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
-        logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")  # Log in YYYY-MM-DD format
+        # logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")  # Log in YYYY-MM-DD format
 
         result = query_api_with_retries(access_token, bbox, current_date.strftime('%Y-%m-%dT00:00:00Z'),
                                         batch_end_date.strftime('%Y-%m-%dT23:59:59Z'))
@@ -418,26 +425,38 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
         current_date = batch_end_date + timedelta(days=1)
 
 
-def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword):
-    for location in locations:
-        sanitized_name = sanitize_filename(location['name'])
-        location_output_folder = os.path.join(output_folder, sanitized_name)
+def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon):
 
-        # Create location-specific folders for thumbnails, geotiffs, geojsons, and CSV
-        thumbnails_folder = os.path.join(location_output_folder, "thumbnails")
-        geotiffs_folder = os.path.join(location_output_folder, "geotiffs")
-        geojsons_folder = os.path.join(location_output_folder, "geojsons")
-        csv_file_path = os.path.join(location_output_folder, f"{sanitized_name}_output.csv")
+    print("-"*columns)
+    description = f"Processing Capella Locations:\nDate Range {start_date} to {end_date} \n lat: {lat} and lon: {lon} \nOutput Directory: {output_folder}"
+    print(description)
+    print("-"*columns)
 
-        # Ensure the directories exist
-        os.makedirs(thumbnails_folder, exist_ok=True)
-        os.makedirs(geotiffs_folder, exist_ok=True)
-        os.makedirs(geojsons_folder, exist_ok=True)
+    with tqdm(total=len(locations), desc="", unit="day") as pbar:
+ 
+        for location in locations:
+            sanitized_name = sanitize_filename(location['name'])
+            location_output_folder = os.path.join(output_folder, sanitized_name)
 
-        logging.info(f"Processing location: {location['name']}")
+            # Create location-specific folders for thumbnails, geotiffs, geojsons, and CSV
+            thumbnails_folder = os.path.join(location_output_folder, "thumbnails")
+            geotiffs_folder = os.path.join(location_output_folder, "geotiffs")
+            geojsons_folder = os.path.join(location_output_folder, "geojsons")
+            csv_file_path = os.path.join(location_output_folder, f"{sanitized_name}_output.csv")
 
-        search_images(location['lat'], location['lon'], BBOX_SIZE, start_date, end_date, access_token,
-                      location_output_folder, sanitized_name, filter_keyword, csv_file_path)
+            # Ensure the directories exist
+            os.makedirs(thumbnails_folder, exist_ok=True)
+            os.makedirs(geotiffs_folder, exist_ok=True)
+            os.makedirs(geojsons_folder, exist_ok=True)
+
+            search_images(lat, lon, BBOX_SIZE, start_date, end_date, access_token,
+                        location_output_folder, sanitized_name, filter_keyword, csv_file_path)
+            
+            pbar.update(1)
+            pbar.refresh()
+
+        
+        tqdm.write(f"Completed Processing Capella Locations")
 
 
 def process_geojson_files(geojson_folder, start_date, end_date, access_token, output_folder, filter_keyword):
@@ -450,7 +469,7 @@ def process_geojson_files(geojson_folder, start_date, end_date, access_token, ou
         bbox_list = [bbox[0], bbox[1], bbox[2], bbox[3]]  # Convert to list [min_lon, min_lat, max_lon, max_lat]
         sanitized_name = sanitize_filename(os.path.splitext(geojson_file)[0])
 
-        logging.info(f"Processing GeoJSON file: {geojson_file}")
+        # logging.info(f"Processing GeoJSON file: {geojson_file}")
 
         # Create location-specific folders for thumbnails, geotiffs, geojsons, and CSV
         output_folder_for_geojson = os.path.join(output_folder, sanitized_name)
@@ -467,29 +486,42 @@ def process_geojson_files(geojson_folder, start_date, end_date, access_token, ou
         current_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
 
-        while current_date <= end_date_dt:
-            batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
-            logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")
+        duration = (end_date_dt - current_date).days + 1
+        print("-"*columns)
+        description = f"Processing Capella Catalog GeoJSON:\n Date Range {start_date} to {end_date} \nOutput Directory: {output_folder_for_geojson}"
+        print(description)
+        print("-"*columns)
+        with tqdm(total=duration, desc="", unit="day") as pbar:
 
-            result = query_api_with_retries(access_token, bbox_list, current_date.strftime('%Y-%m-%dT00:00:00Z'),
-                                            batch_end_date.strftime('%Y-%m-%dT23:59:59Z'))
+            while current_date <= end_date_dt:
+                batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
+                # logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")
 
-            if result:
-                with open(csv_file_path, 'a', newline='') as csvfile:
-                    fieldnames = ['id', 'bbox', 'instruments', 'datetime', 'sar:instrument_mode',
-                                  'sar:pixel_spacing_range', 'capella:image_length', 'capella:image_width',
-                                  'thumbnail_url']
-                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                result = query_api_with_retries(access_token, bbox_list, current_date.strftime('%Y-%m-%dT00:00:00Z'),
+                                                batch_end_date.strftime('%Y-%m-%dT23:59:59Z'))
 
-                    if csvfile.tell() == 0:  # Write header if the file is empty
-                        writer.writeheader()
+                if result:
+                    with open(csv_file_path, 'a', newline='') as csvfile:
+                        fieldnames = ['id', 'bbox', 'instruments', 'datetime', 'sar:instrument_mode',
+                                    'sar:pixel_spacing_range', 'capella:image_length', 'capella:image_width',
+                                    'thumbnail_url']
+                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-                    for date in [current_date + timedelta(days=i) for i in
-                                 range((batch_end_date - current_date).days + 1)]:
-                        process_features(result, writer, thumbnails_folder, geotiffs_folder, geojsons_folder,
-                                         date.strftime('%Y-%m-%d'))
+                        if csvfile.tell() == 0:  # Write header if the file is empty
+                            writer.writeheader()
 
-            current_date = batch_end_date + timedelta(days=1)
+                        for date in [current_date + timedelta(days=i) for i in
+                                    range((batch_end_date - current_date).days + 1)]:
+                            process_features(result, writer, thumbnails_folder, geotiffs_folder, geojsons_folder,
+                                            date.strftime('%Y-%m-%d'))
+
+                current_date = batch_end_date + timedelta(days=1)
+                pbar.update(1)
+                pbar.refresh()
+
+            
+            tqdm.write(f"Completed Processing Capella GeoJson Files")
+
 
 def geo_hash_handler(
         base_output_folder,
@@ -517,44 +549,62 @@ def geo_hash_handler(
         current_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
 
-        while current_date <= end_date_dt:
-            batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
-            logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")
+        duration = (end_date_dt - current_date).days + 1
 
-            result = query_api_with_retries(
-                access_token, bbox,
-                current_date.strftime('%Y-%m-%dT00:00:00Z'),
-                batch_end_date.strftime('%Y-%m-%dT23:59:59Z')
-            )
+        print("-"*columns)
 
-            if result:
-                with open(csv_file_path, 'a', newline='') as csvfile:
-                    fieldnames = ['id', 'bbox', 'instruments', 'datetime', 'sar:instrument_mode',
-                                    'sar:pixel_spacing_range', 'capella:image_length', 'capella:image_width',
-                                    'thumbnail_url']
-                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        description = f"Processing Capella Geo Hashes\nDate Range: {start_date} to {end_date}\nOutput Directory: {base_output_folder}"
+        print(description)
 
-                    if csvfile.tell() == 0:  # Write header if the file is empty
-                        writer.writeheader()
+        print("-"*columns)
 
-                    for date in [current_date + timedelta(days=i) for i in range((batch_end_date - current_date).days + 1)]:
-                        process_features(result, writer, thumbnails_folder, geotiffs_folder, geojsons_folder, date.strftime('%Y-%m-%d'))
+        with tqdm(total=duration, desc="", unit="day") as pbar:
 
-            current_date = batch_end_date + timedelta(days=1)
+            while current_date <= end_date_dt:
+                batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
+                # logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")
+
+                result = query_api_with_retries(
+                    access_token, bbox,
+                    current_date.strftime('%Y-%m-%dT00:00:00Z'),
+                    batch_end_date.strftime('%Y-%m-%dT23:59:59Z')
+                )
+
+                if result:
+                    with open(csv_file_path, 'a', newline='') as csvfile:
+                        fieldnames = ['id', 'bbox', 'instruments', 'datetime', 'sar:instrument_mode',
+                                        'sar:pixel_spacing_range', 'capella:image_length', 'capella:image_width',
+                                        'thumbnail_url']
+                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+                        if csvfile.tell() == 0:  # Write header if the file is empty
+                            writer.writeheader()
+
+                        for date in [current_date + timedelta(days=i) for i in range((batch_end_date - current_date).days + 1)]:
+                            process_features(result, writer, thumbnails_folder, geotiffs_folder, geojsons_folder, date.strftime('%Y-%m-%d'))
+
+                current_date = batch_end_date + timedelta(days=1)
+
+                pbar.update(1)
+                pbar.refresh()
+
+        tqdm.write(f"Completed Processing Capella Geo Hashes")
+
 
 if __name__ == "__main__":
-    logging.info(f"Processing Capella Space Master Catelog api")
-    parser = argparse.ArgumentParser(description='Airbus Catalog API Executor')
-    parser.add_argument('--start-date', required=True, help='Start date')
-    parser.add_argument('--end-date', required=True, help='End date')
-    parser.add_argument('--lat', required=True, type=float, help='Latitude')
-    parser.add_argument('--long', required=True, type=float, help='Longitude')
-    parser.add_argument('--range', required=True, type=float, help='Range value')
-    parser.add_argument('--output-dir', required=True, help='Output directory')
+    argument_parser = argparse.ArgumentParser(description='Airbus Catalog API Executor')
+    argument_parser.add_argument('--start-date', required=True, help='Start date')
+    argument_parser.add_argument('--end-date', required=True, help='End date')
+    argument_parser.add_argument('--lat', required=True, type=float, help='Latitude')
+    argument_parser.add_argument('--long', required=True, type=float, help='Longitude')
+    argument_parser.add_argument('--range', required=True, type=float, help='Range value')
+    argument_parser.add_argument('--output-dir', required=True, help='Output directory')
 
-    args = parser.parse_args()
+    args = argument_parser.parse_args()
     START_DATE = args.start_date
     END_DATE = args.end_date
+    LAT = args.lat
+    LON = args.long
     base_output_folder = args.output_dir + f"/capella/{START_DATE}_{END_DATE}"
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"
@@ -565,7 +615,7 @@ if __name__ == "__main__":
 
         if MODE == "location":
             # Process locations
-            process_locations(LOCATIONS, START_DATE, END_DATE, access_token, base_output_folder, FILTER_KEYWORD)
+            process_locations(LOCATIONS, START_DATE, END_DATE, access_token, base_output_folder, FILTER_KEYWORD, LAT, LON)
         elif MODE == "geohash":
             # Process geohashes
             geo_hash_handler(
@@ -579,7 +629,9 @@ if __name__ == "__main__":
             process_geojson_files(GEOJSON_FOLDER, START_DATE, END_DATE, access_token, base_output_folder, FILTER_KEYWORD)
 
         else:
-            logging.error("Invalid MODE. Please set MODE to 'location', 'geohash', or 'geojson'.")
+            # logging.error("Invalid MODE. Please set MODE to 'location', 'geohash', or 'geojson'.")
+            pass
 
     else:
-        logging.error("Failed to authenticate. Exiting.")
+        # logging.error("Failed to authenticate. Exiting.")
+        pass

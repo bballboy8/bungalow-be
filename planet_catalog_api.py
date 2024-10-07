@@ -14,7 +14,12 @@ from datetime import datetime, timedelta
 from dateutil import parser
 import argparse
 import os
+from tqdm import tqdm
 
+import shutil
+
+# Get the terminal size
+columns = shutil.get_terminal_size().columns
 
 # Input configuration
 API_KEY = 'PLAKba216105b17b4dbda5e1cdfec67ba836'
@@ -143,7 +148,7 @@ def query_planet_data(aoi_geojson, start_date, end_date, item_type):
         features = response.json()['features']
         return features
     except requests.RequestException as e:
-        print(f"Failed to fetch data: {str(e)}")
+        # print(f"Failed to fetch data: {str(e)}")
         return []
 
 
@@ -228,7 +233,7 @@ def save_features_to_files(features, output_dir='.'):
     with open(OUTPUT_GEOJSON_FILE, 'w') as geojson_file:
         json.dump(geojson_output, geojson_file, indent=4)
 
-    print(f"CSV and GeoJSON files have been saved:\nCSV: {OUTPUT_CSV_FILE}\nGeoJSON: {OUTPUT_GEOJSON_FILE}")
+    # print(f"CSV and GeoJSON files have been saved:\nCSV: {OUTPUT_CSV_FILE}\nGeoJSON: {OUTPUT_GEOJSON_FILE}")
 
 
 # Main function to process all dates first and then save the files
@@ -240,29 +245,40 @@ def main(START_DATE, END_DATE, OUTPUT_DIR):
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
 
+    duration = (end_date - current_date).days + 1
     all_features = []  # Collect all features for all dates
-
+    print("-"*columns)
+    description = f"Processing Planet Catalog \nDate Range: {current_date.date()} to {end_date.date()} \nOutput Directory: {OUTPUT_DIR}"
+    print(description)
+    print("-"*columns)
     # Iterate over each day in the date range
-    while current_date <= end_date:
-        start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
-        end_time = current_date.strftime('%Y-%m-%dT23:59:59Z')
-        date_str = current_date.strftime('%Y-%m-%d')
+    with tqdm(total=duration, desc="", unit="day") as pbar:
 
-        # Process each geohash
-        for geohash in geohashes:
-            print(f"Processing date: {date_str}, Geohash: {geohash}")
-            AOI_GEOJSON = geohash_to_geojson(geohash)
-            features = query_planet_data(AOI_GEOJSON, start_time, end_time, ITEM_TYPE)
-            all_features.extend(features)
+        while current_date <= end_date:
+            start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
+            end_time = current_date.strftime('%Y-%m-%dT23:59:59Z')
+            date_str = current_date.strftime('%Y-%m-%d')
 
-        current_date += timedelta(days=1)
+            # Process each geohash
+            for geohash in geohashes:
+                # print(f"Processing date: {date_str}, Geohash: {geohash}")
+                AOI_GEOJSON = geohash_to_geojson(geohash)
+                features = query_planet_data(AOI_GEOJSON, start_time, end_time, ITEM_TYPE)
+                all_features.extend(features)
+
+            current_date += timedelta(days=1)
+
+            pbar.refresh()
+            pbar.update(1)
+
+        pbar.clear()
+    tqdm.write("Completed processing Planet data")
 
     # Save all collected features to files after processing all days
     save_features_to_files(all_features, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
-    print(f"Processing Plant Catelog api")
     argument_parser = argparse.ArgumentParser(description='Plant Catelog API Executor')
     argument_parser.add_argument('--start-date', required=True, help='Start date')
     argument_parser.add_argument('--end-date', required=True, help='End date')
@@ -275,6 +291,8 @@ if __name__ == "__main__":
     START_DATE = args.start_date
     END_DATE = args.end_date
     OUTPUT_DIR = args.output_dir + f"/planet/{START_DATE}_{END_DATE}"
+    # Check if the directory exists
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     main(
         START_DATE,
         END_DATE,
