@@ -450,7 +450,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
 def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon, bbox_range):
 
         print("-"*columns)
-        description = f"Processing Capella Locations:\nDate Range {start_date} to {end_date} \n lat: {lat} and lon: {lon} \n {BBOX_RANGE} \nOutput Directory: {output_folder}"
+        description = f"Processing Capella Locations:\nDate Range {start_date} to {end_date} \n lat: {lat} and lon: {lon} \n Range:{BBOX_RANGE} \nOutput Directory: {output_folder}"
         print(description)
         print("-"*columns)
         print("Total locations to process: ", len(LOCATIONS))
