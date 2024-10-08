@@ -64,6 +64,17 @@ def geohash_to_geojson(geohash_str: str) -> dict:
         ]]
     }
 
+def latlon_to_geohash(lat, lon, range_km):
+    # Map the range to geohash precision
+    precision = (
+        2 if range_km > 100 else
+        4 if range_km > 20 else
+        6 if range_km > 5 else
+        8 if range_km > 1 else
+        10
+    )
+    return pgh.encode(lat, lon, precision=precision)
+
 
 # Function to generate an array of geohashes from a seed geohash
 def generate_geohashes(seed_geohash, child_length):
@@ -237,10 +248,12 @@ def save_features_to_files(features, output_dir='.'):
 
 
 # Main function to process all dates first and then save the files
-def main(START_DATE, END_DATE, OUTPUT_DIR):
-    seed_geohash = GEOHASH
-    child_length = int(GEOHASH_LENGTH) - 1
-    geohashes = generate_geohashes(seed_geohash, child_length)
+def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
+    # seed_geohash = GEOHASH
+    # child_length = int(GEOHASH_LENGTH) - 1
+    # geohashes = generate_geohashes(seed_geohash, child_length)
+
+    geohashes = [GEOHASH]
 
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
@@ -248,11 +261,12 @@ def main(START_DATE, END_DATE, OUTPUT_DIR):
     duration = (end_date - current_date).days + 1
     all_features = []  # Collect all features for all dates
     print("-"*columns)
-    description = f"Processing Planet Catalog \nDate Range: {current_date.date()} to {end_date.date()} \nOutput Directory: {OUTPUT_DIR}"
+    description = f"Processing Planet Catalog \nDate Range: {current_date.date()} to {end_date.date()} \n lat: {LAT} and lon: {LON} Range:{RANGE} \nOutput Directory: {OUTPUT_DIR}"
     print(description)
     print("-"*columns)
+    print("Duration :", duration, "days" if duration > 1 else "day")
     # Iterate over each day in the date range
-    with tqdm(total=duration, desc="", unit="day") as pbar:
+    with tqdm(total=duration, desc="", unit="date") as pbar:
 
         while current_date <= end_date:
             start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
@@ -291,10 +305,17 @@ if __name__ == "__main__":
     START_DATE = args.start_date
     END_DATE = args.end_date
     OUTPUT_DIR = args.output_dir + f"/planet/{START_DATE}_{END_DATE}"
+
+    RANGE = int(args.range)
+    LAT, LON = args.lat, args.long
+    GEOHASH = latlon_to_geohash(LAT, LON, range_km=RANGE)
+    print(f"Generated Geohash: {GEOHASH}")
+
     # Check if the directory exists
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     main(
         START_DATE,
         END_DATE,
-        OUTPUT_DIR
+        OUTPUT_DIR,
+        GEOHASH
     )
