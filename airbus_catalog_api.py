@@ -59,6 +59,17 @@ def calculate_withhold_time(acquisition_date, publication_date):
     hours = delta.seconds // 3600
     return f"{days} days {hours} hours", total_hours
 
+def latlon_to_geohash(lat, lon, range_km):
+    # Map the range to geohash precision
+    precision = (
+        2 if range_km > 100 else
+        4 if range_km > 20 else
+        6 if range_km > 5 else
+        8 if range_km > 1 else
+        10
+    )
+    return geohash2.encode(lat, lon, precision=precision)
+
 
 def sanitize_value(value):
     """Ensure values are suitable for GeoJSON by converting them to strings if necessary, except for None."""
@@ -86,7 +97,7 @@ def format_float(value, precision=2):
         return None
 
 
-def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, output_geojson_file=None):
+def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, output_geojson_file=None, lat=None, lon=None, OUTPUT_DIR=None):
     # Convert geohash to bounding box
     bbox = geohash_to_bbox(geohash)
     bbox_str = f"{bbox[0]},{bbox[1]},{bbox[2]},{bbox[3]}"
@@ -141,10 +152,11 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
         date_difference =  (end_date - current_date).days + 1
 
         print("-" * columns)
-        description = f"Processing Airbus Catalog\nDates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')} \nOutput Directory: {OUTPUT_DIR}"
+        description = f"Processing Airbus Catalog\nDates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')} \n lat: {lat} and lon: {lon} \n Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}"
         print(description)
 
         print("-" * columns)
+        print("Duration :", date_difference, "days" if date_difference > 1 else "day")
 
         with tqdm(total=date_difference, desc="", unit="day") as pbar:
             while current_date <= end_date:
@@ -278,7 +290,12 @@ if __name__ == "__main__":
     OUTPUT_DIR = args.output_dir + f"/Airbus/{START_DATE}_{END_DATE}"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    RANGE = int(args.range)
+    LAT, LON = args.lat, args.long
+    GEOHASH = latlon_to_geohash(LAT, LON, range_km=RANGE)
+    print(f"Generated Geohash: {GEOHASH}")
+
 
     OUTPUT_CSV_FILE = f'{OUTPUT_DIR}/output_airbus.csv'
     OUTPUT_GEOJSON_FILE = f'{OUTPUT_DIR}/output_airbus.geojson'
-    search_images(API_KEY, GEOHASH, args.start_date, args.end_date, OUTPUT_CSV_FILE, OUTPUT_GEOJSON_FILE)
+    search_images(API_KEY, GEOHASH, args.start_date, args.end_date, OUTPUT_CSV_FILE, OUTPUT_GEOJSON_FILE, LAT, LON, OUTPUT_DIR)

@@ -15,7 +15,7 @@ import csv
 import re
 import argparse
 from tqdm import tqdm
-
+import geohash2
 import shutil
 
 # Get the terminal size
@@ -104,20 +104,20 @@ LOCATIONS = [
     # {"name": "Behai Naval Base", "lat": 21.4858, "lon": 109.074338},
     # {"name": "Nanpo Logistics Base", "lat": 21.33147, "lon": 110.41171},
     # {"name": "Zhanjiang Naval Base (West)", "lat": 21.23769, "lon": 110.41965},
-    {"name": "Zhanjiang Naval 0Base (East, Amphib Base)", "lat": 21.22688, "lon": 110.43888},
-    {"name": "Xuwen Ferry Terminal (Hainan Strait)", "lat": 20.23548, "lon": 110.1366},
-    {"name": "Xinhai Ferry Terminal (Hainan Strait)", "lat": 20.05593, "lon": 110.15151},
-    {"name": "Haikou Coast Guard Base", "lat": 20.031537, "lon": 110.278354},
-    {"name": "Yulin Naval Base", "lat": 18.220541, "lon": 109.545956},
-    {"name": "Yalong Carrier Base (Yulin East)", "lat": 18.23193, "lon": 109.68058},
-    {"name": "Yalong Submarine Base (Yulin East)", "lat": 18.214, "lon": 109.697},
-    {"name": "Woody Island", "lat": 16.83438, "lon": 112.3412},
-    {"name": "Lincoln Island Garrison [Nothing seen]", "lat": 16.667685, "lon": 112.729363},
-    {"name": "Triton Island Garrison", "lat": 15.784741, "lon": 111.20221},
-    {"name": "Djibouti Naval Base", "lat": 11.59081, "lon": 43.06359},
-    {"name": "Subi Reef Naval Base", "lat": 10.92492, "lon": 114.0839},
-    {"name": "Cambodia Ream Naval Base", "lat": 10.50633, "lon": 103.61229},
-    {"name": "Mischief Reef Naval Base", "lat": 9.90389, "lon": 115.53561},
+    # {"name": "Zhanjiang Naval 0Base (East, Amphib Base)", "lat": 21.22688, "lon": 110.43888},
+    # {"name": "Xuwen Ferry Terminal (Hainan Strait)", "lat": 20.23548, "lon": 110.1366},
+    # {"name": "Xinhai Ferry Terminal (Hainan Strait)", "lat": 20.05593, "lon": 110.15151},
+    # {"name": "Haikou Coast Guard Base", "lat": 20.031537, "lon": 110.278354},
+    # {"name": "Yulin Naval Base", "lat": 18.220541, "lon": 109.545956},
+    # {"name": "Yalong Carrier Base (Yulin East)", "lat": 18.23193, "lon": 109.68058},
+    # {"name": "Yalong Submarine Base (Yulin East)", "lat": 18.214, "lon": 109.697},
+    # {"name": "Woody Island", "lat": 16.83438, "lon": 112.3412},
+    # {"name": "Lincoln Island Garrison [Nothing seen]", "lat": 16.667685, "lon": 112.729363},
+    # {"name": "Triton Island Garrison", "lat": 15.784741, "lon": 111.20221},
+    # {"name": "Djibouti Naval Base", "lat": 11.59081, "lon": 43.06359},
+    # {"name": "Subi Reef Naval Base", "lat": 10.92492, "lon": 114.0839},
+    # {"name": "Cambodia Ream Naval Base", "lat": 10.50633, "lon": 103.61229},
+    # {"name": "Mischief Reef Naval Base", "lat": 9.90389, "lon": 115.53561},
     {"name": "Fiery Cross Reef Naval Base", "lat": 9.54874, "lon": 112.88915}
 ]
 
@@ -133,6 +133,17 @@ PASSWORD = 'Typh92&mm3e'
 BBOX_SIZE = 0.0045  # Approx. 500m in degrees latitude/longitude
 TARGET_RESOLUTION = (1500, 1500)  # Desired resolution
 RETRY_LIMIT = 5  # Number of retries before failing
+
+def latlon_to_geohash(lat, lon, range_km):
+    # Map the range to geohash precision
+    precision = (
+        2 if range_km > 100 else
+        4 if range_km > 20 else
+        6 if range_km > 5 else
+        8 if range_km > 1 else
+        10
+    )
+    return geohash2.encode(lat, lon, precision=precision)
 
 def get_access_token(username, password):
     credentials = f"{username}:{password}"
@@ -403,37 +414,51 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
     current_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
 
-    while current_date <= end_date_dt:
-        batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
-        # logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")  # Log in YYYY-MM-DD format
+    duration =  ((end_date_dt - current_date).days + 1) / DAYS_PER_BATCH
+    if duration < 1:
+        duration = 1
 
-        result = query_api_with_retries(access_token, bbox, current_date.strftime('%Y-%m-%dT00:00:00Z'),
-                                        batch_end_date.strftime('%Y-%m-%dT23:59:59Z'))
-        if result:
-            with open(csv_file_path, 'a', newline='') as csvfile:
-                fieldnames = ['id', 'bbox', 'instruments', 'datetime', 'sar:instrument_mode',
-                              'sar:pixel_spacing_range', 'capella:image_length', 'capella:image_width',
-                              'thumbnail_url']
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    with tqdm(total=duration, desc="", unit="date") as pbar:
 
-                if csvfile.tell() == 0:  # Write header if the file is empty
-                    writer.writeheader()
+        while current_date <= end_date_dt:
+            batch_end_date = min(current_date + timedelta(days=DAYS_PER_BATCH - 1), end_date_dt)
+            # logging.info(f"Scanning from {current_date.strftime('%Y-%m-%d')} to {batch_end_date.strftime('%Y-%m-%d')}")  # Log in YYYY-MM-DD format
 
-                for date in [current_date + timedelta(days=i) for i in range((batch_end_date - current_date).days + 1)]:
-                    process_features(result, writer, thumbnails_folder, geotiffs_folder, geojsons_folder, date.strftime('%Y-%m-%d'))
+            result = query_api_with_retries(access_token, bbox, current_date.strftime('%Y-%m-%dT00:00:00Z'),
+                                            batch_end_date.strftime('%Y-%m-%dT23:59:59Z'))
+            if result:
+                with open(csv_file_path, 'a', newline='') as csvfile:
+                    fieldnames = ['id', 'bbox', 'instruments', 'datetime', 'sar:instrument_mode',
+                                'sar:pixel_spacing_range', 'capella:image_length', 'capella:image_width',
+                                'thumbnail_url']
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        current_date = batch_end_date + timedelta(days=1)
+                    if csvfile.tell() == 0:  # Write header if the file is empty
+                        writer.writeheader()
+
+                    for date in [current_date + timedelta(days=i) for i in range((batch_end_date - current_date).days + 1)]:
+                        process_features(result, writer, thumbnails_folder, geotiffs_folder, geojsons_folder, date.strftime('%Y-%m-%d'))
+
+            current_date = batch_end_date + timedelta(days=1)
+
+            pbar.update(1)
+            pbar.refresh()
+            
+    tqdm.write(f"Completed Processing Capella Location: {image_prefix}")
 
 
-def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon):
+def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon, bbox_range):
 
-    print("-"*columns)
-    description = f"Processing Capella Locations:\nDate Range {start_date} to {end_date} \n lat: {lat} and lon: {lon} \nOutput Directory: {output_folder}"
-    print(description)
-    print("-"*columns)
+        print("-"*columns)
+        description = f"Processing Capella Locations:\nDate Range {start_date} to {end_date} \n lat: {lat} and lon: {lon} \n {BBOX_RANGE} \nOutput Directory: {output_folder}"
+        print(description)
+        print("-"*columns)
+        print("Total locations to process: ", len(LOCATIONS))
+        print(f"Processing in Batches of {DAYS_PER_BATCH} days")
 
-    with tqdm(total=len(locations), desc="", unit="day") as pbar:
- 
+        # current_date = datetime.strptime(start_date, '%Y-%m-%d')
+        # end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
         for location in locations:
             sanitized_name = sanitize_filename(location['name'])
             location_output_folder = os.path.join(output_folder, sanitized_name)
@@ -449,14 +474,11 @@ def process_locations(locations, start_date, end_date, access_token, output_fold
             os.makedirs(geotiffs_folder, exist_ok=True)
             os.makedirs(geojsons_folder, exist_ok=True)
 
-            search_images(lat, lon, BBOX_SIZE, start_date, end_date, access_token,
+            search_images(lat, lon, bbox_range, start_date, end_date, access_token,
                         location_output_folder, sanitized_name, filter_keyword, csv_file_path)
             
-            pbar.update(1)
-            pbar.refresh()
 
-        
-        tqdm.write(f"Completed Processing Capella Locations")
+        print("All the Locations Processed")
 
 
 def process_geojson_files(geojson_folder, start_date, end_date, access_token, output_folder, filter_keyword):
@@ -527,8 +549,9 @@ def geo_hash_handler(
         base_output_folder,
         start_date,
         end_date,
-):
-    for geohash in geohash_level_1:
+        GEOHASH
+):  
+    for geohash in [GEOHASH]:
         sanitized_name = sanitize_filename(geohash)
         location_output_folder = os.path.join(base_output_folder, sanitized_name)
 
@@ -605,9 +628,13 @@ if __name__ == "__main__":
     END_DATE = args.end_date
     LAT = args.lat
     LON = args.long
+    BBOX_RANGE = args.range
     base_output_folder = args.output_dir + f"/capella/{START_DATE}_{END_DATE}"
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"
+
+    GEOHASH = latlon_to_geohash(LAT, LON, range_km=BBOX_RANGE)
+    print(f"Generated Geohash: {GEOHASH}")
 
     token_info = get_access_token(USERNAME, PASSWORD)
     if token_info:
@@ -615,13 +642,14 @@ if __name__ == "__main__":
 
         if MODE == "location":
             # Process locations
-            process_locations(LOCATIONS, START_DATE, END_DATE, access_token, base_output_folder, FILTER_KEYWORD, LAT, LON)
+            process_locations(LOCATIONS, START_DATE, END_DATE, access_token, base_output_folder, FILTER_KEYWORD, LAT, LON,BBOX_RANGE )
         elif MODE == "geohash":
             # Process geohashes
             geo_hash_handler(
                 base_output_folder,
                 START_DATE,
                 END_DATE,
+                GEOHASH
             )
             
         elif MODE == "geojson":

@@ -53,6 +53,17 @@ geohash_input = [
 geohash_seed = "w"
 geohash_length = 2
 
+def latlon_to_geohash(lat, lon, range_km):
+    # Map the range to geohash precision
+    precision = (
+        2 if range_km > 100 else
+        4 if range_km > 20 else
+        6 if range_km > 5 else
+        8 if range_km > 1 else
+        10
+    )
+    return pgh.encode(lat, lon, precision=precision)
+
 # Define the start and end date range
 # START_DATE_STR = '2023-01-01'
 # END_DATE_STR = '2024-08-31'
@@ -378,7 +389,7 @@ def skyfi_executor(
     THUMBNAILS_FOLDER,
     GEOJSON_FOLDER,
     GEOTIFFS_FOLDER,
-    RANGE_DAYS=30
+    GENERATED_GEOHASH=None
 ):
         
     # Convert the start and end dates to datetime objects
@@ -394,26 +405,29 @@ def skyfi_executor(
     duration = (end_date - start_date).days + 1
 
     # Determine the list of geohashes to process based on the input mode
-    if mode == "array":
+    if GENERATED_GEOHASH:
+        geohashes = [GENERATED_GEOHASH]
+    elif mode == "array":
         geohashes = geohash_input
     elif mode == "length":
-        geohashes = generate_geohashes(geohash_seed, geohash_length)
+        geohashes = generate_geohashes(geohash_seed, geohash_length)    
     tqdm_lock = threading.Lock()
 
     # Create a thread pool executor
     print("-"*columns)
-    description = f"Processing Skyfi Catalog \nDate Range: {start_date.date()} to {end_date.date()} \nOutput Directory: {OUTPUT_DIR}"
+    description = f"Processing Skyfi Catalog \nDate Range: {start_date.date()} to {end_date.date()} \n lat: {LAT} and lon: {LON} \n Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}"
     print(description)
     print("-"*columns)
+    print("Duration :", duration, "days" if duration > 1 else "day")
 
-    with tqdm(total=len(geohashes), desc="", unit="geohash") as pbar:
+    with tqdm(total=duration, desc="", unit="date") as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
 
 
             for geohash in geohashes:
                 # Loop through each date in the date range
-                for single_date in date_range(start_date, end_date, RANGE_DAYS):
+                for single_date in date_range(start_date, end_date, 1):
                     # Submit a task to the executor for each geohash-date combination
                     future = executor.submit(worker, geohash, single_date, throttle_time, results, GEOJSON_FOLDER, THUMBNAILS_FOLDER, GEOTIFFS_FOLDER)
                     futures.append(future)
@@ -448,7 +462,10 @@ if __name__ == "__main__":
     args = argument_parser.parse_args()
     START_DATE = args.start_date
     END_DATE = args.end_date
-    RANGE = args.range
+    RANGE = int(args.range)
+    LAT, LON = args.lat, args.long
+    geohash = latlon_to_geohash(LAT, LON, range_km=RANGE)
+    print(f"Generated Geohash: {geohash}")
         
     # Output folder variable
     output_folder = args.output_dir + f"/skyfi/{START_DATE}_{END_DATE}"
@@ -470,6 +487,6 @@ if __name__ == "__main__":
         thumbnails_folder,
         geojson_folder,
         geotiffs_folder,
-        RANGE
+        geohash
     )
     
