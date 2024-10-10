@@ -5,6 +5,10 @@
 
 This guide will walk you through setting up your Python environment and running the provided Bash script in **PyCharm**.
 
+# Demo Video
+[![Watch the video](https://img.youtube.com/vi/bIzZ2eNQdZ0/0.jpg)](https://www.youtube.com/watch?v=bIzZ2eNQdZ0)
+
+
 ## Prerequisites
 
 Before running the script, ensure the following:
@@ -16,6 +20,16 @@ Before running the script, ensure the following:
 2. **PyCharm Installed**:
    - Download and install **PyCharm** from [JetBrains](https://www.jetbrains.com/pycharm/download/).
    - PyCharm provides a built-in terminal that allows you to run bash scripts.
+
+3. **GitBash Installed**:
+   - Download and install **GitBash** from [Git](https://git-scm.com/downloads).
+   - It allows to run bash scripts.
+
+4. **Valid Parmeters**:
+   - Ensure that the parameters in the `parameters.txt` file are valid and correctly formatted.
+   - The parameters include the start and end dates, latitude, longitude, range, and output directory for the generated catalogs.
+   - Ensure that Output directory is valid and accessible.
+
 
 ## Steps to Run the Setup Script in PyCharm
 
