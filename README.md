@@ -79,21 +79,25 @@ After the script completes, you will see the output of the `catelog_generator.py
 
 ### 8. Customizing Parameters in catelog_generator.py
 
-The script catelog_generator.py uses a dictionary called params to configure various settings for generating catalogs, such as the date range, location, and output directory. You can easily modify these parameters to suit your needs.
+The script catelog_generator.py uses a dictionary called params to configure various settings for generating catalogs, such as the date range, location, and output directory. 
+You can easily modify these parameters to suit your needs from a parameters.txt file present in root directory.
+
+```txt
+Only their values need to be changed in the parameters.txt file. If you change the key names, the script may not work as expected.
+```
 
 Default Parameters
 The default values for the parameters are as follows:
 
-``` python
+``` txt
 
-params = {
-    'start_date': '2020-08-29',
-    'end_date': '2020-09-01',
-    'lat': 40.7128,  # Latitude (New York City in this example)
-    'long': -74.0060,  # Longitude (New York City in this example)
-    'range': 100.0,  # Range in kilometers
-    'output_dir': '/Users/username/Desktop/catalogs' if platform.system() != "Windows" else 'C:\\Users\\username\\Desktop\\catalogs'
-}
+start_date=2020-08-29
+end_date=2020-09-01
+lat=40.7128
+long=-74.0060
+range=5100.0
+output_dir=C:/Users/username/Documents
+
 ```
 
 Parameters Explained:

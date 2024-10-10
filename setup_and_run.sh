@@ -114,7 +114,6 @@ PYTHON_SCRIPT="catelog_generator.py"
 if [ -f "$PYTHON_SCRIPT" ]; then
     echo "Running '$PYTHON_SCRIPT'..."
     $PYTHON_CMD "$PYTHON_SCRIPT"
-    echo "'$PYTHON_SCRIPT' started."
 else
     error "'$PYTHON_SCRIPT' not found."
     deactivate

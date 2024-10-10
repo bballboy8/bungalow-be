@@ -25,14 +25,21 @@ scripts = [
 
 scripts = [os.path.join(main_dir, script) for script in scripts]
 
-params = {
-    'start_date': '2020-08-29',
-    'end_date': '2020-09-01',
-    'lat': 40.7128,
-    'long': -74.0060,
-    'range': 100.0,
-    'output_dir': '/Users/amankhan/Desktop/catalogs' if platform.system() != "Windows" else 'C:\\Users\\amankhan\\Desktop\\catalogs'
-}
+def read_params_from_txt(file_path):
+    params = {}
+    with open(file_path, 'r') as f:
+        for line in f:
+            key, value = line.strip().split('=')
+            # Convert data types as needed
+            if key in ['lat', 'long', 'range']:
+                params[key] = float(value)
+            else:
+                params[key] = value
+    return params
+
+# Path to the params.txt file
+params_file = 'parameters.txt'
+
 
 def check_directory_permissions(output_dir):
     # Check if the directory exists
@@ -53,6 +60,13 @@ def check_directory_permissions(output_dir):
         return False
 
 def run_script_in_new_terminal(script_name):
+
+    if os.path.exists(params_file):
+        params = read_params_from_txt(params_file)
+    else:
+        print(f"Parameters file '{params_file}' not found.")
+        return
+
     if not check_directory_permissions(params['output_dir']):
         print(f"Skipping {script_name} due to directory issues.")
         return
