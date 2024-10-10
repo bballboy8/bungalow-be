@@ -92,8 +92,8 @@ def run_script_in_new_terminal(script_name):
             # '/k' tells cmd to execute the command and remain open
             # '/c' would execute the command and close
             # The 'start' command needs to be passed as a single string
-            cmd_str = ' '.join(shlex.quote(arg) for arg in cmd)
-            subprocess.Popen(['start', 'cmd', '/k', cmd_str], shell=True)
+            # cmd_str = ' '.join(shlex.quote(arg) for arg in cmd)
+            subprocess.Popen(['start', 'cmd', '/k'] + cmd, shell=True)
         
         elif current_os == "Darwin":
             # For macOS, use AppleScript to open Terminal and execute the command

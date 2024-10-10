@@ -17,12 +17,12 @@ prompt_install_python() {
 
 # Step 1: Check if Python is installed
 echo "Checking if Python is installed..."
-if command -v python3 &>/dev/null; then
-    PYTHON_CMD=python3
-    echo "Python found: $(python3 --version)"
-elif command -v python &>/dev/null; then
+if command -v python &>/dev/null; then
     PYTHON_CMD=python
     echo "Python found: $(python --version)"
+elif command -v python3 &>/dev/null; then
+    PYTHON_CMD=python3
+    echo "Python found: $(python3 --version)"
 else
     prompt_install_python
 fi
@@ -89,10 +89,19 @@ else
     echo "Virtual environment '$VENV_DIR' created successfully."
 fi
 
-# Activate the virtual environment
-echo "Activating the virtual environment..."
-# shellcheck source=/dev/null
-source "$VENV_DIR/bin/activate"
+# Detect the platform and activate the virtual environment accordingly
+if [[ "$OSTYPE" == "linux-gnu"* || "$OSTYPE" == "darwin"* ]]; then
+    # Linux or macOS
+    echo "Activating virtual environment for Linux/macOS..."
+    source "$VENV_DIR/bin/activate"
+elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
+    # Windows (Git Bash, Cygwin, or native Windows)
+    echo "Activating virtual environment for Windows..."
+    source "$VENV_DIR/Scripts/activate"
+else
+    echo "Unknown operating system. Could not activate the virtual environment."
+    exit 1
+fi
 
 # Step 4: Install requirements from requirements.txt
 REQUIREMENTS_FILE="requirements.txt"
