@@ -27,6 +27,8 @@ else
     prompt_install_python
 fi
 
+echo "Your Python Version is ${PYTHON_CMD}, Scripts require atleast 3.12  "
+
 # Step 2: Check if the user can run Python scripts
 echo "Verifying if Python scripts can be executed..."
 
@@ -80,12 +82,12 @@ else
     # Check if virtualenv is installed
     if ! command -v virtualenv &>/dev/null; then
         echo "virtualenv is not installed. Installing virtualenv..."
-        $PYTHON_CMD -m pip install --user virtualenv
+        $PYTHON_CMD -m pip install virtualenv
         echo "virtualenv installed successfully."
     fi
 
     # Create the virtual environment
-    virtualenv "$VENV_DIR"
+    virtualenv -p python3.12 "$VENV_DIR"
     echo "Virtual environment '$VENV_DIR' created successfully."
 fi
 
@@ -108,7 +110,6 @@ REQUIREMENTS_FILE="requirements.txt"
 
 if [ -f "$REQUIREMENTS_FILE" ]; then
     echo "Installing dependencies from '$REQUIREMENTS_FILE'..."
-    pip install --upgrade pip
     pip install -r "$REQUIREMENTS_FILE"
     echo "Dependencies installed successfully."
 else

@@ -14,8 +14,39 @@ This guide will walk you through setting up your Python environment and running 
 Before running the script, ensure the following:
 
 1. **Python Installed**:
-   - Make sure Python is installed on your machine.
+   - Make sure Python 3.12 is installed on your machine.
    - If not, download and install it from [python.org](https://www.python.org/downloads/).
+   - While installing, ensure you check the box to add Python to the system PATH and Select administrative privileges.
+
+#### Step A: Set Python 3.12 as Default Python Version
+
+1. **Open Environment Variables:**
+   - Right-click on **This PC** or **My Computer** and select **Properties**.
+   - Click on **Advanced system settings** on the left sidebar.
+   - In the System Properties window, click on the **Environment Variables** button.
+
+2. **Edit the Path Variable:**
+   - In the **System Variables** section, find the `Path` variable and click **Edit**.
+   - Verify that the path to the Python installation directory is included in the list.
+   - If not, click **New** and add the path to the Python directory 
+     a. C:\Users\user_name\AppData\Local\Programs\Python\Python312\Scripts\
+     b. C:\Users\user_name\AppData\Local\Programs\Python\Python312\
+   - Ensure this new entry is at the top of the list to give it priority or if its already in the list just move it to top.
+   - Click **OK** to save the changes.
+
+
+
+
+
+## Step 3: Verify the Installation
+
+1. Open a new **Command Prompt** window.
+2. Run the following command to verify the installation:
+
+   ```bash
+   python --version
+   ```
+   - It should output 3.12 
 
 2. **PyCharm Installed**:
    - Download and install **PyCharm** from [JetBrains](https://www.jetbrains.com/pycharm/download/).
@@ -48,6 +79,7 @@ To run the script:
 
 1. Go to the **bottom panel** of PyCharm and click on the **Terminal** tab. If the terminal is not visible, you can enable it from the **View > Tool Windows > Terminal** menu.
 2. Or you can use shortcut `Alt + F12` to open the terminal.
+3. Select the Gith Bash terminal from the terminal dropdown.
 
 ### 4. Make the Script Executable (for Unix-based Systems)
 
