@@ -82,7 +82,7 @@ else
     # Check if virtualenv is installed
     if ! command -v virtualenv &>/dev/null; then
         echo "virtualenv is not installed. Installing virtualenv..."
-        $PYTHON_CMD -m pip install --user virtualenv
+        $PYTHON_CMD -m pip install virtualenv
         echo "virtualenv installed successfully."
     fi
 
