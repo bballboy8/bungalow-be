@@ -46,7 +46,7 @@ Before running the script, ensure the following:
    ```bash
    python --version
    ```
-   - It should output 3.12 or higher
+   - It should output 3.12 
 
 2. **PyCharm Installed**:
    - Download and install **PyCharm** from [JetBrains](https://www.jetbrains.com/pycharm/download/).
