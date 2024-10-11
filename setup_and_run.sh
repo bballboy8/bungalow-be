@@ -27,7 +27,7 @@ else
     prompt_install_python
 fi
 
-echo "Your Python Version is ${PYTHON_CMD}, Scripts require atleast 3.9  "
+echo "Your Python Version is ${PYTHON_CMD}, Scripts require atleast 3.12  "
 
 # Step 2: Check if the user can run Python scripts
 echo "Verifying if Python scripts can be executed..."
@@ -87,7 +87,7 @@ else
     fi
 
     # Create the virtual environment
-    virtualenv -p python3.9 "$VENV_DIR"
+    virtualenv -p python3.12 "$VENV_DIR"
     echo "Virtual environment '$VENV_DIR' created successfully."
 fi
 
