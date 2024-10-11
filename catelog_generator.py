@@ -61,6 +61,11 @@ def check_directory_permissions(output_dir):
 
 def run_script_in_new_terminal(script_name):
 
+    if platform.system() == 'Windows':
+        python_executable = os.path.join(main_dir, 'venv', 'Scripts', 'python.exe')
+    else:  # Linux/macOS
+        python_executable = os.path.join(main_dir, 'venv', 'bin', 'python')
+
     if os.path.exists(params_file):
         params = read_params_from_txt(params_file)
     else:
@@ -73,7 +78,7 @@ def run_script_in_new_terminal(script_name):
 
     # Construct the command to run the script with parameters
     cmd = [
-        sys.executable,  # Use the current Python interpreter
+        python_executable,  # Auto Select interpreter based on OS
         script_name,
         "--start-date", params['start_date'],
         "--end-date", params['end_date'],

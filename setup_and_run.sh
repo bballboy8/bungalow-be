@@ -108,7 +108,6 @@ REQUIREMENTS_FILE="requirements.txt"
 
 if [ -f "$REQUIREMENTS_FILE" ]; then
     echo "Installing dependencies from '$REQUIREMENTS_FILE'..."
-    pip install --upgrade pip
     pip install -r "$REQUIREMENTS_FILE"
     echo "Dependencies installed successfully."
 else
