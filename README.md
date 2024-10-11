@@ -14,8 +14,35 @@ This guide will walk you through setting up your Python environment and running 
 Before running the script, ensure the following:
 
 1. **Python Installed**:
-   - Make sure Python is installed on your machine.
+   - Make sure Python 3.9 is installed on your machine.
    - If not, download and install it from [python.org](https://www.python.org/downloads/).
+
+#### Step A: Set Python 3.9 as Default
+
+1. **Open Environment Variables:**
+   - Right-click on **This PC** or **My Computer** and select **Properties**.
+   - Click on **Advanced system settings** on the left sidebar.
+   - In the System Properties window, click on the **Environment Variables** button.
+
+2. **Edit the Path Variable:**
+   - In the **System Variables** section, find the `Path` variable and click **Edit**.
+   - Click **New** and add the path to your Python 3.12 installation (e.g., `C:\Python312\` or `C:\Users\<YourUsername>\AppData\Local\Programs\Python\Python312\`).
+   - Ensure this new entry is at the top of the list to give it priority or if its already in the list just move it to top.
+   - Click **OK** to save the changes.
+
+
+
+
+
+## Step 3: Verify the Installation
+
+1. Open a new **Command Prompt** window.
+2. Run the following command to verify the installation:
+
+   ```bash
+   python --version
+   ```
+   - It should output 3.9 or higher
 
 2. **PyCharm Installed**:
    - Download and install **PyCharm** from [JetBrains](https://www.jetbrains.com/pycharm/download/).
