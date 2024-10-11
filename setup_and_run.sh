@@ -10,8 +10,8 @@ error() {
 
 # Function to prompt user to install Python
 prompt_install_python() {
-    echo "Python is not installed on your system."
-    echo "Please install Python from the official website: https://www.python.org/downloads/"
+    echo "Python 3.12 is not installed on your system."
+    echo "Please install Python 3.12 from the official website: https://www.python.org/downloads/"
     exit 1
 }
 
@@ -19,11 +19,19 @@ prompt_install_python() {
 echo "Checking if Python is installed..."
 if command -v python &>/dev/null; then
     PYTHON_CMD=python
+    PYTHON_VERSION=$($PYTHON_CMD --version 2>&1 | awk '{print $2}')
     echo "Python found: $(python --version)"
 elif command -v python3 &>/dev/null; then
     PYTHON_CMD=python3
+    PYTHON_VERSION=$($PYTHON_CMD --version 2>&1 | awk '{print $2}')
     echo "Python found: $(python3 --version)"
 else
+    prompt_install_python
+fi
+
+REQUIRED_VERSION="3.13"
+if [[ $(printf '%s\n' "$REQUIRED_VERSION" "$PYTHON_VERSION" | sort -V | head -n1) != "$REQUIRED_VERSION" ]]; then
+    echo "Python version 3.12 or higher is required. You have version $PYTHON_VERSION."
     prompt_install_python
 fi
 
