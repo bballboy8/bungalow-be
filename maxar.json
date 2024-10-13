@@ -1,0 +1,261 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "id": "10200100943C1A00",
+            "bbox": [
+                -82.213932,
+                40.98686,
+                -81.979072,
+                41.518754
+            ],
+            "type": "Feature",
+            "links": [
+                {
+                    "rel": "collection",
+                    "href": "https://api.maxar.com/discovery/v1/collections/wv01"
+                },
+                {
+                    "rel": "self",
+                    "href": "https://api.maxar.com/discovery/v1/collections/wv01/items/10200100943C1A00"
+                },
+                {
+                    "rel": "root",
+                    "href": "https://api.maxar.com/discovery/v1/"
+                },
+                {
+                    "rel": "order-map-ready",
+                    "href": "https://api.maxar.com/ordering/v1/pipelines/imagery/map-ready/order",
+                    "type": "application/json"
+                },
+                {
+                    "rel": "order-system-ready",
+                    "href": "https://api.maxar.com/ordering/v1/pipelines/imagery/system-ready/order",
+                    "type": "application/json"
+                },
+                {
+                    "rel": "order-view-ready",
+                    "href": "https://api.maxar.com/ordering/v1/pipelines/imagery/view-ready/order",
+                    "type": "application/json"
+                },
+                {
+                    "rel": "order-view-ready-ortho",
+                    "href": "https://api.maxar.com/ordering/v1/pipelines/imagery/view-ready-ortho/order",
+                    "type": "application/json"
+                }
+            ],
+            "assets": {
+                "browse": {
+                    "href": "https://api.maxar.com/discovery/v1/collections/wv01/items/10200100943C1A00/assets/collections/dg-archive/assets/browse/10200100943C1A00.browse.tif",
+                    "type": "image/tiff; application=geotiff",
+                    "title": "Browse Image"
+                },
+                "cloud-cover": {
+                    "href": "https://api.maxar.com/discovery/v1/collections/wv01/items/10200100943C1A00/assets/collections/wv01/assets/cloud-cover/10200100943C1A00.cloud.json",
+                    "type": "application/geo+json",
+                    "title": "Cloud Cover"
+                },
+                "sample-point-set": {
+                    "href": "https://api.maxar.com/discovery/v1/collections/wv01/items/10200100943C1A00/assets/collections/wv01/assets/sample-point-sets/10200100943C1A00.sample-points.json",
+                    "type": "application/geo+json",
+                    "title": "Sample Point Set"
+                }
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -82.21326,
+                            41.512091
+                        ],
+                        [
+                            -82.213183,
+                            41.464643
+                        ],
+                        [
+                            -82.213263,
+                            41.417212
+                        ],
+                        [
+                            -82.213479,
+                            41.369801
+                        ],
+                        [
+                            -82.213527,
+                            41.322453
+                        ],
+                        [
+                            -82.213547,
+                            41.275126
+                        ],
+                        [
+                            -82.213536,
+                            41.227821
+                        ],
+                        [
+                            -82.21356,
+                            41.180527
+                        ],
+                        [
+                            -82.213617,
+                            41.133251
+                        ],
+                        [
+                            -82.213743,
+                            41.085976
+                        ],
+                        [
+                            -82.213852,
+                            41.038714
+                        ],
+                        [
+                            -82.213932,
+                            40.991472
+                        ],
+                        [
+                            -82.213927,
+                            40.98686
+                        ],
+                        [
+                            -81.980238,
+                            40.99097
+                        ],
+                        [
+                            -81.980223,
+                            40.995609
+                        ],
+                        [
+                            -81.980459,
+                            41.043033
+                        ],
+                        [
+                            -81.980504,
+                            41.090494
+                        ],
+                        [
+                            -81.980408,
+                            41.137984
+                        ],
+                        [
+                            -81.980169,
+                            41.185516
+                        ],
+                        [
+                            -81.980008,
+                            41.233058
+                        ],
+                        [
+                            -81.979857,
+                            41.280618
+                        ],
+                        [
+                            -81.979734,
+                            41.328185
+                        ],
+                        [
+                            -81.979608,
+                            41.375765
+                        ],
+                        [
+                            -81.97938,
+                            41.423384
+                        ],
+                        [
+                            -81.979205,
+                            41.471045
+                        ],
+                        [
+                            -81.979072,
+                            41.518754
+                        ],
+                        [
+                            -82.21326,
+                            41.512091
+                        ]
+                    ]
+                ]
+            },
+            "collection": "wv01",
+            "properties": {
+                "gsd": 0.5428662733333334,
+                "title": "Maxar WV01 Image 10200100943C1A00",
+                "datetime": "2020-01-01T19:33:15.161221Z",
+                "eo:bands": [
+                    {
+                        "name": "pan",
+                        "center_wavelength": 650
+                    }
+                ],
+                "platform": "worldview-01",
+                "instruments": [
+                    "VNIR"
+                ],
+                "associations": [],
+                "view:azimuth": 72.424536,
+                "constellation": "maxar",
+                "off_nadir_avg": 17.876239833333333,
+                "off_nadir_end": 17.913792,
+                "off_nadir_max": 17.913792,
+                "off_nadir_min": 17.849201,
+                "rda_available": false,
+                "eo:cloud_cover": 0.0015345066117044086,
+                "scan_direction": "forward",
+                "view:off_nadir": 17.876239833333333,
+                "off_nadir_start": 17.910315,
+                "collect_time_end": "2020-01-01T19:33:19.793180Z",
+                "view:sun_azimuth": 209.67807,
+                "raw_archive_state": "offline",
+                "collect_time_start": "2020-01-01T19:33:15.161221Z",
+                "pan_resolution_avg": 0.5428662733333334,
+                "pan_resolution_end": 0.54304194,
+                "pan_resolution_max": 0.54304194,
+                "pan_resolution_min": 0.54275304,
+                "view:sun_elevation": 20.027333666666667,
+                "multi_resolution_avg": null,
+                "multi_resolution_end": null,
+                "multi_resolution_max": null,
+                "multi_resolution_min": null,
+                "pan_resolution_start": 0.54301286,
+                "acquisition_rev_number": 68372,
+                "multi_resolution_start": null,
+                "view:sun_elevation_max": 20.245941,
+                "view:sun_elevation_min": 19.794939,
+                "geolocation_uncertainty": 5.485492,
+                "stereo_pair_identifiers": [],
+                "spacecraft_to_target_azimuth_avg": 72.424536,
+                "spacecraft_to_target_azimuth_end": 77.15229,
+                "spacecraft_to_target_azimuth_max": 77.15229,
+                "spacecraft_to_target_azimuth_min": 67.39491,
+                "target_to_spacecraft_azimuth_avg": 252.424536,
+                "target_to_spacecraft_azimuth_end": 257.15229,
+                "target_to_spacecraft_azimuth_max": 257.15229,
+                "target_to_spacecraft_azimuth_min": 247.39490999999998,
+                "spacecraft_to_target_azimuth_start": 67.39491,
+                "target_to_spacecraft_azimuth_start": 247.39490999999998,
+                "target_to_spacecraft_elevation_avg": 70.68065234298672,
+                "target_to_spacecraft_elevation_end": 70.6398350217887,
+                "target_to_spacecraft_elevation_max": 70.71004190083026,
+                "target_to_spacecraft_elevation_min": 70.6398350217887,
+                "target_to_spacecraft_elevation_start": 70.64361444841697
+            },
+            "stac_version": "1.0.0",
+            "stac_extensions": [
+                "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+                "https://stac-extensions.github.io/view/v1.0.0/schema.json"
+            ]
+        }
+    ],
+    "numberReturned": 1,
+    "timestamp": "2024-10-13T08:50:55.042340Z",
+    "links": [
+        {
+            "rel": "root",
+            "href": "https://api.maxar.com/discovery/v1/"
+        },
+        {
+            "rel": "next",
+            "href": "https://api.maxar.com/discovery/v1/search?bbox=-83%2C40%2C-82%2C41&collections=wv01%2Cwv02&datetime=2020-01-01%2F2020-01-03&limit=1&page=2"
+        }
+    ]
+}

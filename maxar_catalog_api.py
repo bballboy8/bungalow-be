@@ -96,7 +96,7 @@ def format_float(value, precision=2):
 
 def get_maxar_collections(
     auth_token,
-    limit=5,
+    limit=1,
     page=1,
     bbox=None,
     datetime_range=None,
@@ -237,7 +237,7 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
     print("Duration :", duration, "days" if duration > 1 else "day")
 
     with tqdm(total=duration, desc="", unit="date") as pbar:
-        while current_date <= end_date:  # Inclusive of end_date
+        while current_date < end_date:  # Inclusive of end_date
             start_time = current_date.strftime('%Y-%m-%d')
             end_time = (current_date + timedelta(days=2)).strftime('%Y-%m-%d')
 
