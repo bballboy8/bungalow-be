@@ -120,110 +120,87 @@ def get_maxar_collections(
 
     return None
 
-def save_image(url, save_path):
+def save_image(url, save_path, auth_token):
+    """Downloads an image from the provided URL and saves it to the specified path."""
     try:
-        headers = {"Accept": "application/json", "MAXAR-API-KEY": AUTH_TOKEN}
+        headers = {"Accept": "application/json", "MAXAR-API-KEY": auth_token}
         response = requests.get(url, stream=True, headers=headers)
         response.raise_for_status()
+        
         with open(save_path, 'wb') as out_file:
             out_file.write(response.content)
-        print(f"Downloaded image from {url} to {save_path}")
+        
         return True
-    except Exception as e:
-        # logging.error(f"Failed to download image from {url}: {e}")
-        print("Error downloaidng iamge")
+    except requests.RequestException as e:
         return False
 
 def download_thumbnails(features):
-    """Download and save the thumbnail image if it contains the filter keyword."""
+    """Download and save thumbnail images for the given features."""
     for feature in features:
-        image_id = feature['id']
+        image_id = feature.get('id')
+        thumbnail_url = feature.get('assets', {}).get('browse', {}).get('href')
 
-        assets = feature.get('assets', {})
-        thumbnail_url = assets.get('browse', {}).get('href', None)
+        if thumbnail_url:
+            save_path = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{image_id}.tiff")
+            save_image(thumbnail_url, save_path, AUTH_TOKEN)
 
-        if not thumbnail_url:
-            # print(f"No thumbnail found for {image_id}")
-            pass
+def process_geojson(features):
+    """Saves each feature as a separate GeoJSON file."""
+    for feature in features:
+        feature_id = feature.get('id', 'unknown')
+        geojson_data = {
+            "type": "FeatureCollection",
+            "features": [feature]  # Save each feature individually
+        }
 
-        if save_image(thumbnail_url, os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{image_id[-8:]}.tiff")):
-            # print(f"Downloaded thumbnail for {image_id}")
-            pass
-    
-    return False
+        geojson_filename = f"{feature_id}.geojson"
+        geojson_path = os.path.join(OUTPUT_GEOJSON_FOLDER, geojson_filename)
 
-
-def process_geojson(geojson_features):
-    # Save the GeoJSON file
-    geojson_output = {
-        "type": "FeatureCollection",
-        "features": geojson_features
-    }
-
-    with open(OUTPUT_GEOJSON_FILE, 'w') as geojson_file:
-        json.dump(geojson_output, geojson_file, indent=4)
-
-def process_csv(properties_list, geometries_list, feature_ids):
+        with open(geojson_path, 'w') as geojson_file:
+            json.dump(geojson_data, geojson_file, indent=4)
+        
+def process_csv(features):
+    """Appends feature properties and geometries to the CSV file."""
     write_header = not os.path.exists(OUTPUT_CSV_FILE) or os.path.getsize(OUTPUT_CSV_FILE) == 0
 
     with open(OUTPUT_CSV_FILE, mode='a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
 
-        list_of_features = ["id"] + list(properties_list[0].keys()) + ['geometry'] if properties_list else []
+        if features:
+            header = ["id"] + list(features[0].get('properties', {}).keys()) + ["geometry"]
+            if write_header:
+                csv_writer.writerow(header)
 
-        if write_header and properties_list:
-            csv_writer.writerow(list_of_features)
-
-        for feature_id, properties, geometry in zip(feature_ids, properties_list, geometries_list):
-            row = [feature_id] + [sanitize_value(properties.get(key)) for key in list_of_features[1:-1]] + [json.dumps(geometry)]
-            csv_writer.writerow(row)
-
-def process_features(features, geojson_features, properties_list, geometries_list, feature_ids, feature_image_urls):
-    feature_records = features.get("features")
-    for feature in feature_records:
-        feature_id = feature.get('id', '')
-        properties = feature.get('properties', {})
-        geometry = feature.get('geometry', {})
-
-        # Collect data for GeoJSON and CSV
-        geojson_feature = {
-            "type": "Feature",
-            "geometry": geometry,
-            "properties": properties,
-            "id": feature_id
-        }
-
-        geojson_features.append(geojson_feature)
-        properties_list.append(properties)
-        geometries_list.append(geometry)
-        feature_ids.append(feature_id)
-        feature_image_urls.append(feature)
+            for feature in features:
+                feature_id = feature.get('id', 'unknown')
+                properties = feature.get('properties', {})
+                geometry = feature.get('geometry', {})
+                
+                row = [feature_id] + [sanitize_value(properties.get(key)) for key in header[1:-1]] + [json.dumps(geometry)]
+                csv_writer.writerow(row)
 
 def fetch_and_process_records(auth_token, bbox, start_time, end_time):
-    geojson_features = []
-    properties_list = []
-    geometries_list = []
-    feature_ids = []
-    feature_image_urls = []
-
+    """Fetches records from the Maxar API and processes them."""
     page = 1
+    all_features = []
+
     while True:
         records = get_maxar_collections(auth_token, bbox=bbox, datetime_range=f"{start_time}/{end_time}", page=page)
-        if records is None:
+        if not records:
             break
         
-        process_features(records, geojson_features, properties_list, geometries_list, feature_ids, feature_image_urls)
+        features = records.get('features', [])
+        all_features.extend(features)
 
-        if not records.get("links") or not any(link.get("rel") == "next" for link in records["links"]):
+        if not any(link.get("rel") == "next" for link in records.get("links", [])):
             break
         
         page += 1
 
-    process_geojson(geojson_features)
-
-    process_csv(properties_list, geometries_list, feature_ids)
-
-    download_thumbnails(feature_image_urls)
+    # Process and save data
+    process_geojson(all_features)    # Separate GeoJSON for each feature
+    process_csv(all_features)        # CSV for all features
+    download_thumbnails(all_features) # Thumbnails for each feature
 
 def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
     geohashes = [GEOHASH]
@@ -278,8 +255,8 @@ if __name__ == "__main__":
     OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/images"
     os.makedirs(OUTPUT_THUMBNAILS_FOLDER, exist_ok=True)
 
-    OUTPUT_GEOJSON_FILE = f"{OUTPUT_DIR}/output_maxar.geojson"
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    OUTPUT_GEOJSON_FOLDER = f"{OUTPUT_DIR}/geojsons"
+    os.makedirs(OUTPUT_GEOJSON_FOLDER, exist_ok=True)
 
     OUTPUT_CSV_FILE = f"{OUTPUT_DIR}/output_maxar.csv"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
