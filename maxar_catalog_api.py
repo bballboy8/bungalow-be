@@ -12,7 +12,7 @@ import os
 from tqdm import tqdm
 import pygeohash as pgh
 import math
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import shutil
 
 # Get the terminal size
@@ -21,7 +21,7 @@ columns = shutil.get_terminal_size().columns
 # Configuration
 AUTH_TOKEN = ""
 MAXAR_BASE_URL = "https://api.maxar.com/discovery/v1"
-
+MAX_THREADS = 10
 
 def latlon_to_geohash(lat, lon, range_km):
     # Map the range to geohash precision
@@ -120,10 +120,12 @@ def get_maxar_collections(
 
     return None
 
-def save_image(url, save_path, auth_token):
+def save_image(feature):
     """Downloads an image from the provided URL and saves it to the specified path."""
     try:
-        headers = {"Accept": "application/json", "MAXAR-API-KEY": auth_token}
+        url = feature.get('assets', {}).get('browse', {}).get('href')
+        save_path = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{feature.get('id')}.tif")
+        headers = {"Accept": "application/json", "MAXAR-API-KEY": AUTH_TOKEN}
         response = requests.get(url, stream=True, headers=headers)
         response.raise_for_status()
         
@@ -136,13 +138,23 @@ def save_image(url, save_path, auth_token):
 
 def download_thumbnails(features):
     """Download and save thumbnail images for the given features."""
-    for feature in features:
-        image_id = feature.get('id')
-        thumbnail_url = feature.get('assets', {}).get('browse', {}).get('href')
 
-        if thumbnail_url:
-            save_path = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{image_id}.tiff")
-            save_image(thumbnail_url, save_path, AUTH_TOKEN)
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        futures = {executor.submit(save_image, feature): feature for feature in features}
+
+        for future in as_completed(futures):
+            feature = futures[future]
+            try:
+                result = future.result()
+                if result:
+                    # print(f"Successfully downloaded thumbnail for feature {feature.get('id')}")
+                    pass
+                else:
+                    # print(f"Failed to download thumbnail for feature {feature.get('id')}")
+                    pass
+            except Exception as e:
+                # print(f"Exception occurred while downloading thumbnail for feature {feature.get('id')}: {e}")
+                pass
 
 def process_geojson(features):
     """Saves each feature as a separate GeoJSON file."""
