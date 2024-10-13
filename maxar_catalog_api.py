@@ -121,56 +121,6 @@ def get_maxar_collections(
     return None
 
 
-# Function to save features to CSV and GeoJSON
-def save_features_to_files(features, output_dir='.'):
-    # Prepare CSV output
-    OUTPUT_CSV_FILE = f"{output_dir}/output_maxar.csv"
-    os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
-
-      # Creates the directory if it doesn't exist
-
-    # with open(OUTPUT_CSV_FILE, mode='w', newline='') as csv_file:
-    #     csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
-
-    #     # Write the header row
-    #     csv_writer.writerow([
-    #         'id', 'geometry', 'acquired', 'cloud_percent',
-    #         'item_type', 'provider', 'published',
-    #         'satellite_azimuth', 'satellite_id', 'view_angle',
-    #         'pixel_resolution', 'withhold_readable', 'withhold_hours'
-    #     ])
-
-    #     # Prepare GeoJSON output
-    #     geojson_features = []
-
-        # Write the data rows
-    #     for feature in features:
-    #         properties = feature.get('properties', {})
-    #         geometry = feature.get('geometry', {})
-    #         acquisition_date = format_datetime(properties.get('acquired', ''))
-    #         publication_date = format_datetime(properties.get('published', ''))
-    #         withhold_readable, withhold_hours = calculate_withhold_time(properties.get('acquired', ''),
-    #                                                                     properties.get('published', ''))
-    #         satellite_azimuth = format_float(properties.get('satellite_azimuth', ''), 2)
-    #         view_angle = format_float(properties.get('view_angle', ''), 2)
-    #         pixel_resolution = format_float(properties.get('pixel_resolution', ''), 2)
-
-    #         csv_writer.writerow([
-    #             feature.get('id', ''),
-    #             json.dumps(geometry),  # Geometry as a JSON string
-    #             acquisition_date,
-    #             properties.get('cloud_percent', ''),
-    #             properties.get('item_type', ''),
-    #             properties.get('provider', ''),
-    #             publication_date,
-    #             satellite_azimuth,
-    #             properties.get('satellite_id', ''),
-    #             view_angle,
-    #             pixel_resolution,
-    #             withhold_readable,
-    #             withhold_hours
-    #         ])
-
 def process_geojson(geojson_features):
     # Save the GeoJSON file
     geojson_output = {
