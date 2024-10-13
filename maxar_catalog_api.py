@@ -96,11 +96,9 @@ def format_float(value, precision=2):
 
 def get_maxar_collections(
     auth_token,
-    sortby="datetime DESC",
     limit=5,
     page=1,
     bbox=None,
-    intersects=None,
     datetime_range=None,
 ):
     """
@@ -108,7 +106,7 @@ def get_maxar_collections(
     """
     collections = [ "wv01", "wv02"]
     collections_str = ",".join(collections)
-    url = f"https://api.maxar.com/discovery/v1/search?collections={collections_str}&bbox={bbox}&datetime={datetime_range}"
+    url = f"https://api.maxar.com/discovery/v1/search?collections={collections_str}&bbox={bbox}&datetime={datetime_range}&limit={limit}&page={page}"
 
     headers = {"Accept": "application/json", "MAXAR-API-KEY": auth_token}
 
@@ -207,52 +205,52 @@ def save_features_to_files(features, output_dir='.'):
 
     # print(f"CSV and GeoJSON files have been saved:\nCSV: {OUTPUT_CSV_FILE}\nGeoJSON: {OUTPUT_GEOJSON_FILE}")
 
-def process_featuress(features):
-    print(features)
+def process_features(features):
+    # Process the features as needed
+    return features
 
+def fetch_and_process_records(auth_token, bbox, start_time, end_time):
+    page = 1
+    while True:
+        records = get_maxar_collections(auth_token, bbox=bbox, datetime_range=f"{start_time}/{end_time}", page=page)
+        if records is None:
+            break
         
+        process_features(records)
+
+        if not records.get("links") or not any(link.get("rel") == "next" for link in records["links"]):
+            break
+        
+        page += 1
 
 def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
     geohashes = [GEOHASH]
-
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
 
-
     duration = (end_date - current_date).days
-    all_features = []  # Collect all features for all dates
-    print("-"*columns)
-    description = f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} Both Inclusive \n lat: {LAT} and lon: {LON} Range:{RANGE} \nOutput Directory: {OUTPUT_DIR}"
+    print("-" * columns)
+    description = (f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} Both Inclusive \n"
+                   f"lat: {LAT} and lon: {LON} Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}")
     print(description)
-    print("-"*columns)
+    print("-" * columns)
     print("Duration :", duration, "days" if duration > 1 else "day")
 
     with tqdm(total=duration, desc="", unit="date") as pbar:
-
-        while current_date < end_date:
+        while current_date <= end_date:  # Inclusive of end_date
             start_time = current_date.strftime('%Y-%m-%d')
-            end_time = current_date.strftime('%Y-%m-%d')
             end_time = (current_date + timedelta(days=2)).strftime('%Y-%m-%d')
 
             for geohash in geohashes:
                 bbox = get_geohash_corners(geohash)
-                features = get_maxar_collections(
-                    AUTH_TOKEN,
-                    bbox=bbox,
-                    datetime_range=f"{start_time}/{end_time}",
-                )
-                all_features.extend(features)
+                fetch_and_process_records(AUTH_TOKEN, bbox, start_time, end_time)
 
-            current_date += timedelta(days=1)
+            current_date += timedelta(days=1)  # Move to the next day
+            pbar.update(1)  # Update progress bar
 
-            pbar.refresh()
-            pbar.update(1)
 
         pbar.clear()
     tqdm.write("Completed processing Maxar data")
-
-    # Save all collected features to files after processing all days
-    # save_features_to_files(all_features, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
