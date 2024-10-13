@@ -112,7 +112,6 @@ def get_maxar_collections(
 
     try:
         response = requests.request("GET",url, headers=headers)
-        print(response.text)
         return response.json()
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
@@ -128,8 +127,7 @@ def save_features_to_files(features, output_dir='.'):
     OUTPUT_CSV_FILE = f"{output_dir}/output_maxar.csv"
     os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
 
-    OUTPUT_GEOJSON_FILE = f"{output_dir}/output_maxar.geojson"
-    os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
+      # Creates the directory if it doesn't exist
 
     # with open(OUTPUT_CSV_FILE, mode='w', newline='') as csv_file:
     #     csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
@@ -173,55 +171,76 @@ def save_features_to_files(features, output_dir='.'):
     #             withhold_hours
     #         ])
 
-    #         # Create a GeoJSON feature
-    #         geojson_feature = {
-    #             "type": "Feature",
-    #             "geometry": geometry,
-    #             "properties": {
-    #                 "id": feature.get('id', ''),
-    #                 "acquired": acquisition_date,
-    #                 "cloud_percent": properties.get('cloud_percent', ''),
-    #                 "item_type": properties.get('item_type', ''),
-    #                 "provider": properties.get('provider', ''),
-    #                 "published": publication_date,
-    #                 "satellite_azimuth": satellite_azimuth,
-    #                 "satellite_id": properties.get('satellite_id', ''),
-    #                 "view_angle": view_angle,
-    #                 "pixel_resolution": pixel_resolution,
-    #                 "withhold_readable": withhold_readable,
-    #                 "withhold_hours": withhold_hours
-    #             }
-    #         }
-    #         geojson_features.append(geojson_feature)
+def process_geojson(geojson_features):
+    # Save the GeoJSON file
+    geojson_output = {
+        "type": "FeatureCollection",
+        "features": geojson_features
+    }
 
-    # # Save the GeoJSON file
-    # geojson_output = {
-    #     "type": "FeatureCollection",
-    #     "features": geojson_features
-    # }
+    with open(OUTPUT_GEOJSON_FILE, 'w') as geojson_file:
+        json.dump(geojson_output, geojson_file, indent=4)
 
-    # with open(OUTPUT_GEOJSON_FILE, 'w') as geojson_file:
-    #     json.dump(geojson_output, geojson_file, indent=4)
+def process_csv(properties_list, geometries_list, feature_ids):
+    write_header = not os.path.exists(OUTPUT_CSV_FILE) or os.path.getsize(OUTPUT_CSV_FILE) == 0
 
-    # print(f"CSV and GeoJSON files have been saved:\nCSV: {OUTPUT_CSV_FILE}\nGeoJSON: {OUTPUT_GEOJSON_FILE}")
+    with open(OUTPUT_CSV_FILE, mode='a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
 
-def process_features(features):
-    # Process the features as needed
-    return features
+        list_of_features = ["id"] + list(properties_list[0].keys()) + ['geometry'] if properties_list else []
+
+        if write_header and properties_list:
+            csv_writer.writerow(list_of_features)
+
+        for feature_id, properties, geometry in zip(feature_ids, properties_list, geometries_list):
+            row = [feature_id] + [sanitize_value(properties.get(key)) for key in list_of_features[1:-1]] + [json.dumps(geometry)]
+            csv_writer.writerow(row)
+
+def process_features(features, geojson_features, properties_list, geometries_list, feature_ids):
+    feature_records = features.get("features")
+    for feature in feature_records:
+        feature_id = feature.get('id', '')
+        properties = feature.get('properties', {})
+        geometry = feature.get('geometry', {})
+
+        # Collect data for GeoJSON and CSV
+        geojson_feature = {
+            "type": "Feature",
+            "geometry": geometry,
+            "properties": properties,
+            "id": feature_id
+        }
+
+        geojson_features.append(geojson_feature)
+        properties_list.append(properties)
+        geometries_list.append(geometry)
+        feature_ids.append(feature_id)
 
 def fetch_and_process_records(auth_token, bbox, start_time, end_time):
+    geojson_features = []
+    properties_list = []
+    geometries_list = []
+    feature_ids = []
+
     page = 1
     while True:
         records = get_maxar_collections(auth_token, bbox=bbox, datetime_range=f"{start_time}/{end_time}", page=page)
         if records is None:
             break
         
-        process_features(records)
+        process_features(records, geojson_features, properties_list, geometries_list, feature_ids)
 
         if not records.get("links") or not any(link.get("rel") == "next" for link in records["links"]):
             break
         
         page += 1
+
+    # Write all collected features to the GeoJSON file
+    process_geojson(geojson_features)
+
+    # Write all collected features to the CSV file
+    process_csv(properties_list, geometries_list, feature_ids)
+
 
 def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
     geohashes = [GEOHASH]
@@ -271,6 +290,13 @@ if __name__ == "__main__":
     LAT, LON = args.lat, args.long
     GEOHASH = latlon_to_geohash(LAT, LON, range_km=RANGE)
     print(f"Generated Geohash: {GEOHASH}")
+
+
+    OUTPUT_GEOJSON_FILE = f"{OUTPUT_DIR}/output_maxar.geojson"
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    OUTPUT_CSV_FILE = f"{OUTPUT_DIR}/output_maxar.csv"
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Check if the directory exists
     os.makedirs(OUTPUT_DIR, exist_ok=True)
