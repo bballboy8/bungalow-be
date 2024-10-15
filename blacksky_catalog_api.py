@@ -21,7 +21,7 @@ columns = shutil.get_terminal_size().columns
 
 # Configuration
 BLACKSKY_BASE_URL = "https://api.blacksky.com"
-AUTH_TOKEN = ""
+AUTH_TOKEN = "R7RB3I4F7K3C276BUWZ4I4QUXHNT2TER"
 MAX_THREADS = 10
 
 def remove_black_borders(img):
@@ -277,7 +277,7 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
     duration = (end_date - current_date).days
     print("-" * columns)
     description = (
-        f"Processing Blacksky Catalog \nDate Range: {current_date.date()} to {end_date.date()} Both Inclusive \n"
+        f"Processing Blacksky Catalog \nDate Range: {current_date.date()} to {end_date.date()} End Date Exclusive \n"
         f"lat: {LAT} and lon: {LON} Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}"
     )
     print(description)

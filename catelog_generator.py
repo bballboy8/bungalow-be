@@ -20,7 +20,9 @@ scripts = [
     "airbus_catalog_api.py",
     "capella_master_collector.py",
     "planet_catalog_api.py",
-    "skyfi_catalog_api.py"
+    "skyfi_catalog_api.py",
+    "maxar_catalog_api.py",
+    "blacksky_catalog_api.py",
 ]
 
 scripts = [os.path.join(main_dir, script) for script in scripts]
