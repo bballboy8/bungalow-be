@@ -103,7 +103,7 @@ def get_blacksky_collections(
 
     headers = {"Accept": "application/json", "Authorization": auth_token}
     params = {
-        "bbox": "122.3, 47.4, -122.2, 47.4",
+        "bbox": bbox,
         "time": datetime_range,
     }
 
