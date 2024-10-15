@@ -19,7 +19,7 @@ import shutil
 columns = shutil.get_terminal_size().columns
 
 # Configuration
-AUTH_TOKEN = ""
+AUTH_TOKEN = "ZmFiMGQyYWEtODA5Ni00ZDAyLTkxN2QtYjAwNTg4NTc4OGNj"
 MAXAR_BASE_URL = "https://api.maxar.com/discovery/v1"
 MAX_THREADS = 10
 
@@ -221,7 +221,7 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
 
     duration = (end_date - current_date).days
     print("-" * columns)
-    description = (f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} Both Inclusive \n"
+    description = (f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} End Date Exclusive \n"
                    f"lat: {LAT} and lon: {LON} Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}")
     print(description)
     print("-" * columns)
