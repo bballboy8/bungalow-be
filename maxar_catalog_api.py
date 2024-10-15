@@ -219,19 +219,18 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
 
-    duration = (end_date - current_date).days
+    duration = (end_date - current_date).days + 1  # Inclusive of end_date
     print("-" * columns)
-    description = (f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} End Date Exclusive \n"
+    description = (f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} \n"
                    f"lat: {LAT} and lon: {LON} Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}")
     print(description)
     print("-" * columns)
     print("Duration :", duration, "days" if duration > 1 else "day")
 
     with tqdm(total=duration, desc="", unit="date") as pbar:
-        while current_date < end_date:  # Inclusive of end_date
+        while current_date <= end_date:  # Inclusive of end_date
             start_time = current_date.strftime('%Y-%m-%d')
-            end_time = (current_date + timedelta(days=2)).strftime('%Y-%m-%d')
-
+            end_time = (current_date + timedelta(days=1)).strftime('%Y-%m-%d')
             for geohash in geohashes:
                 bbox = get_geohash_corners(geohash)
                 fetch_and_process_records(AUTH_TOKEN, bbox, start_time, end_time)
