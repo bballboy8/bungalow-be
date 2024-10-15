@@ -11,15 +11,27 @@ import pygeohash as pgh
 import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import shutil
+from PIL import Image, ImageChops
+import numpy as np
+import rasterio
+from rasterio.transform import from_bounds
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
 
 # Configuration
 BLACKSKY_BASE_URL = "https://api.blacksky.com"
-AUTH_TOKEN = ""
+AUTH_TOKEN = "R7RB3I4F7K3C276BUWZ4I4QUXHNT2TER"
 MAX_THREADS = 10
 
+def remove_black_borders(img):
+    """Remove black borders from the image."""
+    bg = Image.new(img.mode, img.size, img.getpixel((0, 0)))
+    diff = ImageChops.difference(img, bg)
+    bbox = diff.getbbox()
+    if bbox:
+        return img.crop(bbox)
+    return img
 
 def latlon_to_geohash(lat, lon, range_km):
     # Map the range to geohash precision
@@ -91,6 +103,45 @@ def format_float(value, precision=2):
         return None
 
 
+def georectify_image(png_path, bbox, geotiffs_folder, image_id, target_resolution=(1500, 1500)):
+    try:
+        with Image.open(png_path) as img:
+            img = remove_black_borders(img)
+            img = img.resize(target_resolution, Image.Resampling.LANCZOS)
+            img_array = np.array(img)
+
+        width, height = target_resolution
+        
+        left, bottom, right, top = bbox
+
+        transform = from_bounds(left, bottom, right, top, width, height)
+
+        geotiff_name = f"{image_id}.tif"
+        geotiff_path = os.path.join(geotiffs_folder, geotiff_name)
+
+        if len(img_array.shape) == 2:
+            img_array = np.expand_dims(img_array, axis=-1)
+            count = 1
+        else:
+            count = img_array.shape[2]
+
+        # Write the GeoTIFF file using rasterio
+        with rasterio.open(
+                geotiff_path,
+                'w',
+                driver='GTiff',
+                height=img_array.shape[0],
+                width=img_array.shape[1],
+                count=count,
+                dtype=img_array.dtype,
+                crs='EPSG:4326',
+                transform=transform) as dst:
+            for i in range(1, count + 1):
+                dst.write(img_array[:, :, i - 1], i)
+
+    except Exception as e:
+        pass
+
 def get_blacksky_collections(
     auth_token,
     bbox=None,
@@ -129,6 +180,7 @@ def save_image(feature):
             with open(save_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
+            georectify_image(save_path, feature.get("bbox"), OUTPUT_GEOTIFF_FOLDER, feature.get("id"))
         else:
             print(f"Error during download: {response.status_code}")
             print(response.text)
