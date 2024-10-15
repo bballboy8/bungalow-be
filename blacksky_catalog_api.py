@@ -21,7 +21,7 @@ columns = shutil.get_terminal_size().columns
 
 # Configuration
 BLACKSKY_BASE_URL = "https://api.blacksky.com"
-AUTH_TOKEN = "R7RB3I4F7K3C276BUWZ4I4QUXHNT2TER"
+AUTH_TOKEN = ""
 MAX_THREADS = 10
 
 def remove_black_borders(img):
