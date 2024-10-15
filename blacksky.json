@@ -1,0 +1,143 @@
+{
+    "type": "Collection",
+    "title": "BlackSky StacCollection",
+    "description": "A dynamically generated collection of features from a search result",
+    "features": [
+        {
+            "type": "Feature",
+            "id": "BSG-113-20230102-180537-57031794",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -79.7719269435936,
+                            47.389664893353256
+                        ],
+                        [
+                            -79.72504641234028,
+                            47.406250688314685
+                        ],
+                        [
+                            -79.68814854127595,
+                            47.3584047150427
+                        ],
+                        [
+                            -79.73505959159012,
+                            47.34183054360118
+                        ],
+                        [
+                            -79.7719269435936,
+                            47.389664893353256
+                        ]
+                    ]
+                ]
+            },
+            "properties": {
+                "datetime": "2023-01-02T18:05:37Z",
+                "vendorId": "bsg",
+                "sensorId": "global",
+                "offNadirAngle": 4.085918,
+                "sunAzimuth": 190.4,
+                "gsd": 0.90874124,
+                "cloudPercent": 99.97,
+                "productType": "STANDARD",
+                "orthorectified": false,
+                "georeferenced": false
+            },
+            "links": [
+                {
+                    "href": "https://api.blacksky.com/v1/catalog/stac/BSG-113-20230102-180537-57031794",
+                    "rel": "self",
+                    "title": "Self link for BSG-113-20230102-180537-57031794"
+                }
+            ],
+            "assets": {
+                "browseUrl": {
+                    "href": "https://api.blacksky.com/v1/browse/BSG-113-20230102-180537-57031794.png",
+                    "title": "BrowseUrl",
+                    "roles": [
+                        "thumbnail"
+                    ]
+                }
+            },
+            "bbox": [
+                -79.7719269435936,
+                47.34183054360118,
+                -79.68814854127595,
+                47.406250688314685
+            ],
+            "stac_version": "1.0.0"
+        },
+        {
+            "type": "Feature",
+            "id": "BSG-113-20230102-180550-57031795",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -79.77476862303772,
+                            47.38949748009936
+                        ],
+                        [
+                            -79.72451414724824,
+                            47.40721031426158
+                        ],
+                        [
+                            -79.68820418234756,
+                            47.35713562543269
+                        ],
+                        [
+                            -79.73839304311686,
+                            47.339291819480316
+                        ],
+                        [
+                            -79.77476862303772,
+                            47.38949748009936
+                        ]
+                    ]
+                ]
+            },
+            "properties": {
+                "datetime": "2023-01-02T18:05:50Z",
+                "vendorId": "bsg",
+                "sensorId": "global",
+                "offNadirAngle": 9.362639,
+                "sunAzimuth": 190.45,
+                "gsd": 0.9569413,
+                "cloudPercent": 99.95,
+                "productType": "STANDARD",
+                "orthorectified": false,
+                "georeferenced": false
+            },
+            "links": [
+                {
+                    "href": "https://api.blacksky.com/v1/catalog/stac/BSG-113-20230102-180550-57031795",
+                    "rel": "self",
+                    "title": "Self link for BSG-113-20230102-180550-57031795"
+                }
+            ],
+            "assets": {
+                "browseUrl": {
+                    "href": "https://api.blacksky.com/v1/browse/BSG-113-20230102-180550-57031795.png",
+                    "title": "BrowseUrl",
+                    "roles": [
+                        "thumbnail"
+                    ]
+                }
+            },
+            "bbox": [
+                -79.77476862303772,
+                47.339291819480316,
+                -79.68820418234756,
+                47.40721031426158
+            ],
+            "stac_version": "1.0.0"
+        }
+    ],
+    "stac_version": "1.0.0",
+    "stac_extensions": [
+        "https://stac-extensions.github.io/single-file-stac/v1.0.0/schema.json"
+    ]
+}
