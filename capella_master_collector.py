@@ -17,6 +17,8 @@ import argparse
 from tqdm import tqdm
 import geohash2
 import shutil
+import math
+from pyproj import Geod
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -31,7 +33,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # START_DATE = "2024-07-01"
 # END_DATE = "2024-08-26"
 # Number of days to process at a time
-DAYS_PER_BATCH = 14
+DAYS_PER_BATCH = 1
 
 # Define the filter keyword (e.g., "GEO" or "GEC")
 FILTER_KEYWORD = "GEC"
@@ -41,6 +43,7 @@ MODE = "location"
 
 # Geohash and locations
 geohash_level_1 = ["w7y8"]
+
 
 LOCATIONS = [
     # {"name": "Shipyard - Huludao Bohai Shipyard", "lat": 40.71235, "lon": 121.019},
@@ -303,6 +306,7 @@ def download_thumbnail(feature, output_folder, image_prefix, date, filter_keywor
 
 def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
     """Query the API with retries and token refresh handling."""
+    bbox = list(map(float, bbox.split(',')))
     retry_count = 0
     while retry_count < RETRY_LIMIT:
         try:
@@ -324,11 +328,11 @@ def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
             return response.json()
 
         except requests.RequestException as e:
-            # logging.error(f"API request failed: {e}")
+            logging.error(f"API request failed: {e}")
             retry_count += 1
 
             if retry_count >= RETRY_LIMIT:
-                # logging.error(f"Max retries reached. Exiting after {retry_count} attempts.")
+                logging.error(f"Max retries reached. Exiting after {retry_count} attempts.")
                 break
 
             # Attempt to get a new token and retry
@@ -336,9 +340,9 @@ def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
             token_info = get_access_token(USERNAME, PASSWORD)
             if token_info:
                 access_token = token_info["accessToken"]
-                # logging.info(f"New token acquired. Retrying... ({retry_count}/{RETRY_LIMIT})")
+                logging.info(f"New token acquired. Retrying... ({retry_count}/{RETRY_LIMIT})")
             else:
-                # logging.error("Failed to obtain new access token. Pausing for 10 minutes...")
+                logging.error("Failed to obtain new access token. Pausing for 10 minutes...")
                 time.sleep(600)  # Sleep for 10 minutes before retrying
 
             time.sleep(300)
@@ -409,7 +413,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
     geotiffs_folder = os.path.join(output_folder, "geotiffs")
     geojsons_folder = os.path.join(output_folder, "geojsons")
 
-    bbox = create_bbox(lat, lon, bbox_size)
+    bbox = BBOX
 
     current_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
@@ -549,10 +553,11 @@ def geo_hash_handler(
         base_output_folder,
         start_date,
         end_date,
+        BBOX,
         GEOHASH
 ):  
-    for geohash in [GEOHASH]:
-        sanitized_name = sanitize_filename(geohash)
+    for bbox in [BBOX]:
+        sanitized_name = sanitize_filename(GEOHASH)
         location_output_folder = os.path.join(base_output_folder, sanitized_name)
 
         # Create location-specific folders for thumbnails, geotiffs, geojsons, and CSV
@@ -566,8 +571,6 @@ def geo_hash_handler(
         os.makedirs(geotiffs_folder, exist_ok=True)
         os.makedirs(geojsons_folder, exist_ok=True)
 
-        polygon = geohash_to_polygon(geohash)
-        bbox = list(polygon.bounds)
 
         current_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
@@ -615,13 +618,14 @@ def geo_hash_handler(
 
 
 if __name__ == "__main__":
-    argument_parser = argparse.ArgumentParser(description='Airbus Catalog API Executor')
+    argument_parser = argparse.ArgumentParser(description='Capella Catalog API Executor')
     argument_parser.add_argument('--start-date', required=True, help='Start date')
     argument_parser.add_argument('--end-date', required=True, help='End date')
     argument_parser.add_argument('--lat', required=True, type=float, help='Latitude')
     argument_parser.add_argument('--long', required=True, type=float, help='Longitude')
     argument_parser.add_argument('--range', required=True, type=float, help='Range value')
     argument_parser.add_argument('--output-dir', required=True, help='Output directory')
+    argument_parser.add_argument('--bbox', required=True, help='Bounding box')
 
     args = argument_parser.parse_args()
     START_DATE = args.start_date
@@ -633,8 +637,9 @@ if __name__ == "__main__":
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"
 
+    BBOX = args.bbox.replace("t", "-")
     GEOHASH = latlon_to_geohash(LAT, LON, range_km=BBOX_RANGE)
-    print(f"Generated Geohash: {GEOHASH}")
+    print(f"Generated BBOX: {BBOX}")
 
     token_info = get_access_token(USERNAME, PASSWORD)
     if token_info:
@@ -649,6 +654,7 @@ if __name__ == "__main__":
                 base_output_folder,
                 START_DATE,
                 END_DATE,
+                BBOX,
                 GEOHASH
             )
             

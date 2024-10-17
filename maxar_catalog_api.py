@@ -23,6 +23,8 @@ AUTH_TOKEN = "ZmFiMGQyYWEtODA5Ni00ZDAyLTkxN2QtYjAwNTg4NTc4OGNj"
 MAXAR_BASE_URL = "https://api.maxar.com/discovery/v1"
 MAX_THREADS = 10
 
+
+
 def latlon_to_geohash(lat, lon, range_km):
     # Map the range to geohash precision
     precision = (
@@ -214,8 +216,8 @@ def fetch_and_process_records(auth_token, bbox, start_time, end_time):
     process_csv(all_features)        # CSV for all features
     download_thumbnails(all_features) # Thumbnails for each feature
 
-def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
-    geohashes = [GEOHASH]
+def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
+    bboxes = [BBOX]
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
 
@@ -231,8 +233,7 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
         while current_date <= end_date:  # Inclusive of end_date
             start_time = current_date.strftime('%Y-%m-%d')
             end_time = (current_date + timedelta(days=1)).strftime('%Y-%m-%d')
-            for geohash in geohashes:
-                bbox = get_geohash_corners(geohash)
+            for bbox in bboxes:
                 fetch_and_process_records(AUTH_TOKEN, bbox, start_time, end_time)
 
             current_date += timedelta(days=1)  # Move to the next day
@@ -251,6 +252,7 @@ if __name__ == "__main__":
     argument_parser.add_argument('--long', required=True, type=float, help='Longitude')
     argument_parser.add_argument('--range', required=True, type=float, help='Range value')
     argument_parser.add_argument('--output-dir', required=True, help='Output directory')
+    argument_parser.add_argument('--bbox', required=True, help='Bounding Box')
 
     args = argument_parser.parse_args()
     START_DATE = args.start_date
@@ -259,8 +261,9 @@ if __name__ == "__main__":
 
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
-    GEOHASH = latlon_to_geohash(LAT, LON, range_km=RANGE)
-    print(f"Generated Geohash: {GEOHASH}")
+    
+    BBOX = args.bbox.replace("t", "-")
+    print(f"Generated BBOX: {BBOX}")
 
 
     OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/images"
@@ -278,5 +281,5 @@ if __name__ == "__main__":
         START_DATE,
         END_DATE,
         OUTPUT_DIR,
-        GEOHASH
+        BBOX
     )

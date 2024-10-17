@@ -5,6 +5,19 @@ import os
 import platform
 import shlex
 import shutil
+from pyproj import Geod
+
+def latlon_to_bbox(lat, lon, range_km):
+    """Generate a bounding box from a lat, lon and range in km."""
+    geod = Geod(ellps="WGS84")
+    north_lon, north_lat, _ = geod.fwd(lon, lat, 0, range_km * 1000)
+    south_lon, south_lat, _ = geod.fwd(lon, lat, 180, range_km * 1000)
+    east_lon, east_lat, _ = geod.fwd(lon, lat, 90, range_km * 1000) 
+    west_lon, west_lat, _ = geod.fwd(lon, lat, 270, range_km * 1000)
+    # Format as bbox string: xmin (west), ymin (south), xmax (east), ymax (north)
+    bbox = f"{west_lon},{south_lat},{east_lon},{north_lat}"   
+    return bbox.replace("-", "t")
+
 
 def get_main_dir():
     try:
@@ -79,6 +92,7 @@ def run_script_in_new_terminal(script_name):
         return
 
     # Construct the command to run the script with parameters
+    bbox = latlon_to_bbox(params['lat'], params['long'], params['range'])
     cmd = [
         python_executable,  # Auto Select interpreter based on OS
         script_name,
@@ -87,7 +101,8 @@ def run_script_in_new_terminal(script_name):
         "--lat", str(params['lat']),
         "--long", str(params['long']),
         "--range", str(params['range']),
-        "--output-dir", params['output_dir']
+        "--output-dir", params['output_dir'],
+        "--bbox", str(bbox),
     ]
 
     # Detect the operating system

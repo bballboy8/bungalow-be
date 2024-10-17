@@ -15,8 +15,9 @@ from dateutil import parser
 import argparse
 import os
 from tqdm import tqdm
-
+import math
 import shutil
+from pyproj import Geod
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -248,12 +249,12 @@ def save_features_to_files(features, output_dir='.'):
 
 
 # Main function to process all dates first and then save the files
-def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
+def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     # seed_geohash = GEOHASH
     # child_length = int(GEOHASH_LENGTH) - 1
     # geohashes = generate_geohashes(seed_geohash, child_length)
 
-    geohashes = [GEOHASH]
+    bboxes = [BBOX]
 
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
@@ -274,10 +275,9 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
             date_str = current_date.strftime('%Y-%m-%d')
 
             # Process each geohash
-            for geohash in geohashes:
+            for bbox in bboxes:
                 # print(f"Processing date: {date_str}, Geohash: {geohash}")
-                AOI_GEOJSON = geohash_to_geojson(geohash)
-                features = query_planet_data(AOI_GEOJSON, start_time, end_time, ITEM_TYPE)
+                features = query_planet_data(bbox, start_time, end_time, ITEM_TYPE)
                 all_features.extend(features)
 
             current_date += timedelta(days=1)
@@ -300,6 +300,7 @@ if __name__ == "__main__":
     argument_parser.add_argument('--long', required=True, type=float, help='Longitude')
     argument_parser.add_argument('--range', required=True, type=float, help='Range value')
     argument_parser.add_argument('--output-dir', required=True, help='Output directory')
+    argument_parser.add_argument('--bbox', required=True, help='Bounding Box')
 
     args = argument_parser.parse_args()
     START_DATE = args.start_date
@@ -308,8 +309,8 @@ if __name__ == "__main__":
 
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
-    GEOHASH = latlon_to_geohash(LAT, LON, range_km=RANGE)
-    print(f"Generated Geohash: {GEOHASH}")
+    BBOX = args.bbox.replace("t", "-")
+    print(f"Generated BBOX: {BBOX}")
 
     # Check if the directory exists
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -317,5 +318,5 @@ if __name__ == "__main__":
         START_DATE,
         END_DATE,
         OUTPUT_DIR,
-        GEOHASH
+        BBOX
     )
