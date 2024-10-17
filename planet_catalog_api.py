@@ -17,7 +17,7 @@ import os
 from tqdm import tqdm
 import math
 import shutil
-from geopy.distance import geodesic
+from pyproj import Geod
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
