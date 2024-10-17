@@ -12,6 +12,7 @@ import os
 from tqdm import tqdm
 import math
 import shutil
+from pyproj import Geod
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -39,12 +40,14 @@ logging.basicConfig(
 )
 def latlon_to_bbox(lat, lon, range_km):
     """Generate a bounding box from a lat, lon and range in km."""
-    delta_lat = range_km / 111.0
-    delta_lon = range_km / (111.0 * math.cos(math.radians(lat)))
-    top_left = (lat + delta_lat, lon - delta_lon)
-    bottom_right = (lat - delta_lat, lon + delta_lon)
-    # Format as a bbox string: xmin, ymin, xmax, ymax
-    bbox = f"{top_left[1]},{bottom_right[0]},{bottom_right[1]},{top_left[0]}"
+    geod = Geod(ellps="WGS84")
+    north_lat, north_lon, _ = geod.fwd(lon, lat, 0, range_km * 1000)  # move north by range_km
+    south_lat, south_lon, _ = geod.fwd(lon, lat, 180, range_km * 1000)  # move south by range_km
+    east_lat, east_lon, _ = geod.fwd(lon, lat, 90, range_km * 1000)  # move east by range_km
+    west_lat, west_lon, _ = geod.fwd(lon, lat, 270, range_km * 1000)  # move west by range_km
+    
+    # Format as bbox string: xmin (west), ymin (south), xmax (east), ymax (north)
+    bbox = f"{west_lon},{south_lat},{east_lon},{north_lat}"
     return bbox
 
 def geohash_to_bbox(geohash):
