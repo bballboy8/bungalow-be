@@ -474,13 +474,14 @@ if __name__ == "__main__":
     argument_parser.add_argument('--long', required=True, type=float, help='Longitude')
     argument_parser.add_argument('--range', required=True, type=float, help='Range value')
     argument_parser.add_argument('--output-dir', required=True, help='Output directory')
+    argument_parser.add_argument('--bbox', required=True, help='Bounding box')
 
     args = argument_parser.parse_args()
     START_DATE = args.start_date
     END_DATE = args.end_date
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
-    BBOX = latlon_to_bbox(LAT, LON, RANGE)
+    BBOX = list(map(float, (args.bbox).replace("t", "-").split(",")))
     print(f"Generated BBOX: {BBOX}")
         
     # Output folder variable

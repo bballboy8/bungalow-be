@@ -44,17 +44,6 @@ MODE = "location"
 # Geohash and locations
 geohash_level_1 = ["w7y8"]
 
-def latlon_to_bbox(lat, lon, range_km):
-    """Generate a bounding box from a lat, lon and range in km."""
-    geod = Geod(ellps="WGS84")
-    north_lat, north_lon, _ = geod.fwd(lon, lat, 0, range_km * 1000)  # move north by range_km
-    south_lat, south_lon, _ = geod.fwd(lon, lat, 180, range_km * 1000)  # move south by range_km
-    east_lat, east_lon, _ = geod.fwd(lon, lat, 90, range_km * 1000)  # move east by range_km
-    west_lat, west_lon, _ = geod.fwd(lon, lat, 270, range_km * 1000)  # move west by range_km
-    
-    # Format as bbox string: xmin (west), ymin (south), xmax (east), ymax (north)
-    bbox = f"{west_lon},{south_lat},{east_lon},{north_lat}"
-    return bbox
 
 LOCATIONS = [
     # {"name": "Shipyard - Huludao Bohai Shipyard", "lat": 40.71235, "lon": 121.019},
@@ -317,7 +306,7 @@ def download_thumbnail(feature, output_folder, image_prefix, date, filter_keywor
 
 def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
     """Query the API with retries and token refresh handling."""
-    bbox = [float(coord) for coord in bbox.split(",")]
+    bbox = list(map(float, bbox.split(',')))
     retry_count = 0
     while retry_count < RETRY_LIMIT:
         try:
@@ -339,11 +328,11 @@ def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
             return response.json()
 
         except requests.RequestException as e:
-            # logging.error(f"API request failed: {e}")
+            logging.error(f"API request failed: {e}")
             retry_count += 1
 
             if retry_count >= RETRY_LIMIT:
-                # logging.error(f"Max retries reached. Exiting after {retry_count} attempts.")
+                logging.error(f"Max retries reached. Exiting after {retry_count} attempts.")
                 break
 
             # Attempt to get a new token and retry
@@ -351,9 +340,9 @@ def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
             token_info = get_access_token(USERNAME, PASSWORD)
             if token_info:
                 access_token = token_info["accessToken"]
-                # logging.info(f"New token acquired. Retrying... ({retry_count}/{RETRY_LIMIT})")
+                logging.info(f"New token acquired. Retrying... ({retry_count}/{RETRY_LIMIT})")
             else:
-                # logging.error("Failed to obtain new access token. Pausing for 10 minutes...")
+                logging.error("Failed to obtain new access token. Pausing for 10 minutes...")
                 time.sleep(600)  # Sleep for 10 minutes before retrying
 
             time.sleep(300)
@@ -424,7 +413,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
     geotiffs_folder = os.path.join(output_folder, "geotiffs")
     geojsons_folder = os.path.join(output_folder, "geojsons")
 
-    bbox = latlon_to_bbox(lat, lon, bbox_size)
+    bbox = BBOX
 
     current_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
@@ -629,13 +618,14 @@ def geo_hash_handler(
 
 
 if __name__ == "__main__":
-    argument_parser = argparse.ArgumentParser(description='Airbus Catalog API Executor')
+    argument_parser = argparse.ArgumentParser(description='Capella Catalog API Executor')
     argument_parser.add_argument('--start-date', required=True, help='Start date')
     argument_parser.add_argument('--end-date', required=True, help='End date')
     argument_parser.add_argument('--lat', required=True, type=float, help='Latitude')
     argument_parser.add_argument('--long', required=True, type=float, help='Longitude')
     argument_parser.add_argument('--range', required=True, type=float, help='Range value')
     argument_parser.add_argument('--output-dir', required=True, help='Output directory')
+    argument_parser.add_argument('--bbox', required=True, help='Bounding box')
 
     args = argument_parser.parse_args()
     START_DATE = args.start_date
@@ -647,7 +637,7 @@ if __name__ == "__main__":
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"
 
-    BBOX = latlon_to_bbox(LAT, LON, BBOX_RANGE)
+    BBOX = args.bbox.replace("t", "-")
     GEOHASH = latlon_to_geohash(LAT, LON, range_km=BBOX_RANGE)
     print(f"Generated BBOX: {BBOX}")
 

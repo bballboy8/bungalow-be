@@ -34,17 +34,7 @@ ITEM_TYPE = "SkySatCollect"  # Specify the item type
 # OUTPUT_CSV_FILE = r'O:\Professional__Work\Heimdall\planet\output_planet.csv'
 # OUTPUT_GEOJSON_FILE = r'O:\Professional__Work\Heimdall\planet\output_planet.geojson'
 
-def latlon_to_bbox(lat, lon, range_km):
-    """Generate a bounding box from a lat, lon and range in km."""
-    geod = Geod(ellps="WGS84")
-    north_lat, north_lon, _ = geod.fwd(lon, lat, 0, range_km * 1000)  # move north by range_km
-    south_lat, south_lon, _ = geod.fwd(lon, lat, 180, range_km * 1000)  # move south by range_km
-    east_lat, east_lon, _ = geod.fwd(lon, lat, 90, range_km * 1000)  # move east by range_km
-    west_lat, west_lon, _ = geod.fwd(lon, lat, 270, range_km * 1000)  # move west by range_km
-    
-    # Format as bbox string: xmin (west), ymin (south), xmax (east), ymax (north)
-    bbox = f"{west_lon},{south_lat},{east_lon},{north_lat}"
-    return bbox
+
 # Function to get the corners of the geohash
 def get_geohash_corners(geohash):
     center_lat, center_lon = pgh.decode(geohash)
@@ -310,6 +300,7 @@ if __name__ == "__main__":
     argument_parser.add_argument('--long', required=True, type=float, help='Longitude')
     argument_parser.add_argument('--range', required=True, type=float, help='Range value')
     argument_parser.add_argument('--output-dir', required=True, help='Output directory')
+    argument_parser.add_argument('--bbox', required=True, help='Bounding Box')
 
     args = argument_parser.parse_args()
     START_DATE = args.start_date
@@ -318,7 +309,7 @@ if __name__ == "__main__":
 
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
-    BBOX = latlon_to_bbox(LAT, LON, RANGE)
+    BBOX = args.bbox.replace("t", "-")
     print(f"Generated BBOX: {BBOX}")
 
     # Check if the directory exists

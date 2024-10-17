@@ -12,7 +12,6 @@ import os
 from tqdm import tqdm
 import math
 import shutil
-from pyproj import Geod
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -38,17 +37,6 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-def latlon_to_bbox(lat, lon, range_km):
-    """Generate a bounding box from a lat, lon and range in km."""
-    geod = Geod(ellps="WGS84")
-    north_lat, north_lon, _ = geod.fwd(lon, lat, 0, range_km * 1000)  # move north by range_km
-    south_lat, south_lon, _ = geod.fwd(lon, lat, 180, range_km * 1000)  # move south by range_km
-    east_lat, east_lon, _ = geod.fwd(lon, lat, 90, range_km * 1000)  # move east by range_km
-    west_lat, west_lon, _ = geod.fwd(lon, lat, 270, range_km * 1000)  # move west by range_km
-    
-    # Format as bbox string: xmin (west), ymin (south), xmax (east), ymax (north)
-    bbox = f"{west_lon},{south_lat},{east_lon},{north_lat}"
-    return bbox
 
 def geohash_to_bbox(geohash):
     """Convert geohash to bounding box."""
@@ -290,6 +278,7 @@ if __name__ == "__main__":
     parser_argument.add_argument('--long', required=True, type=float, help='Longitude')
     parser_argument.add_argument('--range', required=True, type=float, help='Range value')
     parser_argument.add_argument('--output-dir', required=True, help='Output directory')
+    parser_argument.add_argument('--bbox', required=True, help='Bounding box')
 
     args = parser_argument.parse_args()
     START_DATE = args.start_date
@@ -301,7 +290,7 @@ if __name__ == "__main__":
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
 
-    BBOX = latlon_to_bbox(LAT, LON, RANGE)
+    BBOX = args.bbox.replace("t", "-")
     print(f"Generated BBOX: {BBOX}")
 
 
