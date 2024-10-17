@@ -18,7 +18,6 @@ from tqdm import tqdm
 import geohash2
 import shutil
 import math
-from pyproj import Geod
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -448,7 +447,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
             pbar.update(1)
             pbar.refresh()
             
-    tqdm.write(f"Completed Processing Capella Location: {image_prefix}")
+    tqdm.write(f"Completed Processing Capella Locations")
 
 
 def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon, bbox_range):

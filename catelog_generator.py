@@ -5,17 +5,17 @@ import os
 import platform
 import shlex
 import shutil
-from pyproj import Geod
+import math
+
 
 def latlon_to_bbox(lat, lon, range_km):
     """Generate a bounding box from a lat, lon and range in km."""
-    geod = Geod(ellps="WGS84")
-    north_lon, north_lat, _ = geod.fwd(lon, lat, 0, range_km * 1000)
-    south_lon, south_lat, _ = geod.fwd(lon, lat, 180, range_km * 1000)
-    east_lon, east_lat, _ = geod.fwd(lon, lat, 90, range_km * 1000) 
-    west_lon, west_lat, _ = geod.fwd(lon, lat, 270, range_km * 1000)
-    # Format as bbox string: xmin (west), ymin (south), xmax (east), ymax (north)
-    bbox = f"{west_lon},{south_lat},{east_lon},{north_lat}"   
+    delta_lat = range_km / 111.0
+    delta_lon = range_km / (111.0 * math.cos(math.radians(lat)))
+    top_left = (lat + delta_lat, lon - delta_lon)
+    bottom_right = (lat - delta_lat, lon + delta_lon)
+    # Format as a bbox string: xmin, ymin, xmax, ymax
+    bbox = f"{top_left[1]},{bottom_right[0]},{bottom_right[1]},{top_left[0]}"
     return bbox.replace("-", "t")
 
 

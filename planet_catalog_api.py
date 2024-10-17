@@ -17,7 +17,6 @@ import os
 from tqdm import tqdm
 import math
 import shutil
-from pyproj import Geod
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
