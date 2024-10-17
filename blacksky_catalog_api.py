@@ -24,6 +24,17 @@ BLACKSKY_BASE_URL = "https://api.blacksky.com"
 AUTH_TOKEN = "R7RB3I4F7K3C276BUWZ4I4QUXHNT2TER"
 MAX_THREADS = 10
 
+
+def latlon_to_bbox(lat, lon, range_km):
+    """Generate a bounding box from a lat, lon and range in km."""
+    delta_lat = range_km / 111.0
+    delta_lon = range_km / (111.0 * math.cos(math.radians(lat)))
+    top_left = (lat + delta_lat, lon - delta_lon)
+    bottom_right = (lat - delta_lat, lon + delta_lon)
+    # Format as a bbox string: xmin, ymin, xmax, ymax
+    bbox = f"{top_left[1]},{bottom_right[0]},{bottom_right[1]},{top_left[0]}"
+    return bbox
+
 def remove_black_borders(img):
     """Remove black borders from the image."""
     bg = Image.new(img.mode, img.size, img.getpixel((0, 0)))
@@ -269,8 +280,8 @@ def fetch_and_process_records(auth_token, bbox, start_time, end_time):
     download_thumbnails(features)  # Thumbnails for each feature
 
 
-def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
-    geohashes = [GEOHASH]
+def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
+    bboxes = [BBOX]
     current_date = datetime.strptime(START_DATE, "%Y-%m-%d")
     end_date = datetime.strptime(END_DATE, "%Y-%m-%d")
 
@@ -289,8 +300,7 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH):
             start_time = current_date.strftime("%Y-%m-%d")
             end_time = (current_date + timedelta(days=1)).strftime("%Y-%m-%d")
 
-            for geohash in geohashes:
-                bbox = get_geohash_corners(geohash)
+            for bbox in bboxes:
                 fetch_and_process_records(AUTH_TOKEN, bbox, start_time, end_time)
 
             current_date += timedelta(days=1)  # Move to the next day
@@ -320,8 +330,9 @@ if __name__ == "__main__":
 
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
-    GEOHASH = latlon_to_geohash(LAT, LON, range_km=RANGE)
-    print(f"Generated Geohash: {GEOHASH}")
+
+    BBOX = latlon_to_bbox(LAT, LON, RANGE)
+    print(f"Generated BBOX: {BBOX}")
 
     OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/thumbnails"
     os.makedirs(OUTPUT_THUMBNAILS_FOLDER, exist_ok=True)
@@ -337,4 +348,4 @@ if __name__ == "__main__":
 
     # Check if the directory exists
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    main(START_DATE, END_DATE, OUTPUT_DIR, GEOHASH)
+    main(START_DATE, END_DATE, OUTPUT_DIR, BBOX)

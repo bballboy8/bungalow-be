@@ -10,7 +10,7 @@ from dateutil import parser
 import argparse
 import os
 from tqdm import tqdm
-
+import math
 import shutil
 
 # Get the terminal size
@@ -37,7 +37,15 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-
+def latlon_to_bbox(lat, lon, range_km):
+    """Generate a bounding box from a lat, lon and range in km."""
+    delta_lat = range_km / 111.0
+    delta_lon = range_km / (111.0 * math.cos(math.radians(lat)))
+    top_left = (lat + delta_lat, lon - delta_lon)
+    bottom_right = (lat - delta_lat, lon + delta_lon)
+    # Format as a bbox string: xmin, ymin, xmax, ymax
+    bbox = f"{top_left[1]},{bottom_right[0]},{bottom_right[1]},{top_left[0]}"
+    return bbox
 
 def geohash_to_bbox(geohash):
     """Convert geohash to bounding box."""
@@ -97,10 +105,7 @@ def format_float(value, precision=2):
         return None
 
 
-def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, output_geojson_file=None, lat=None, lon=None, OUTPUT_DIR=None):
-    # Convert geohash to bounding box
-    bbox = geohash_to_bbox(geohash)
-    bbox_str = f"{bbox[0]},{bbox[1]},{bbox[2]},{bbox[3]}"
+def search_images(api_key, bbox, start_date, end_date, output_csv_file=None, output_geojson_file=None, lat=None, lon=None, OUTPUT_DIR=None):
 
     # Set up headers for the authentication request
     headers = {
@@ -168,7 +173,7 @@ def search_images(api_key, geohash, start_date, end_date, output_csv_file=None, 
                     end_date_str = current_date.strftime('%Y-%m-%dT23:59:59.999Z')
 
                     querystring = {
-                        "bbox": bbox_str,
+                        "bbox": bbox,
                         "acquisitionDate": f"[{start_date_str},{end_date_str}]",
                         "itemsPerPage": ITEMS_PER_PAGE,
                         "startPage": current_page,
@@ -292,10 +297,11 @@ if __name__ == "__main__":
 
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
-    GEOHASH = latlon_to_geohash(LAT, LON, range_km=RANGE)
-    print(f"Generated Geohash: {GEOHASH}")
+
+    BBOX = latlon_to_bbox(LAT, LON, RANGE)
+    print(f"Generated BBOX: {BBOX}")
 
 
     OUTPUT_CSV_FILE = f'{OUTPUT_DIR}/output_airbus.csv'
     OUTPUT_GEOJSON_FILE = f'{OUTPUT_DIR}/output_airbus.geojson'
-    search_images(API_KEY, GEOHASH, args.start_date, args.end_date, OUTPUT_CSV_FILE, OUTPUT_GEOJSON_FILE, LAT, LON, OUTPUT_DIR)
+    search_images(API_KEY, BBOX, args.start_date, args.end_date, OUTPUT_CSV_FILE, OUTPUT_GEOJSON_FILE, LAT, LON, OUTPUT_DIR)

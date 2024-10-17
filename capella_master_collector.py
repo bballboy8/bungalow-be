@@ -17,6 +17,7 @@ import argparse
 from tqdm import tqdm
 import geohash2
 import shutil
+import math
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -31,7 +32,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # START_DATE = "2024-07-01"
 # END_DATE = "2024-08-26"
 # Number of days to process at a time
-DAYS_PER_BATCH = 14
+DAYS_PER_BATCH = 1
 
 # Define the filter keyword (e.g., "GEO" or "GEC")
 FILTER_KEYWORD = "GEC"
@@ -41,6 +42,16 @@ MODE = "location"
 
 # Geohash and locations
 geohash_level_1 = ["w7y8"]
+
+def latlon_to_bbox(lat, lon, range_km):
+    """Generate a bounding box from a lat, lon and range in km."""
+    delta_lat = range_km / 111.0
+    delta_lon = range_km / (111.0 * math.cos(math.radians(lat)))
+    top_left = (lat + delta_lat, lon - delta_lon)
+    bottom_right = (lat - delta_lat, lon + delta_lon)
+    # Format as a bbox string: xmin, ymin, xmax, ymax
+    bbox = f"{top_left[1]},{bottom_right[0]},{bottom_right[1]},{top_left[0]}"
+    return bbox
 
 LOCATIONS = [
     # {"name": "Shipyard - Huludao Bohai Shipyard", "lat": 40.71235, "lon": 121.019},
@@ -303,6 +314,7 @@ def download_thumbnail(feature, output_folder, image_prefix, date, filter_keywor
 
 def query_api_with_retries(access_token, bbox, start_datetime, end_datetime):
     """Query the API with retries and token refresh handling."""
+    bbox = [float(coord) for coord in bbox.split(",")]
     retry_count = 0
     while retry_count < RETRY_LIMIT:
         try:
@@ -409,7 +421,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
     geotiffs_folder = os.path.join(output_folder, "geotiffs")
     geojsons_folder = os.path.join(output_folder, "geojsons")
 
-    bbox = create_bbox(lat, lon, bbox_size)
+    bbox = latlon_to_bbox(lat, lon, bbox_size)
 
     current_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
@@ -549,10 +561,11 @@ def geo_hash_handler(
         base_output_folder,
         start_date,
         end_date,
+        BBOX,
         GEOHASH
 ):  
-    for geohash in [GEOHASH]:
-        sanitized_name = sanitize_filename(geohash)
+    for bbox in [BBOX]:
+        sanitized_name = sanitize_filename(GEOHASH)
         location_output_folder = os.path.join(base_output_folder, sanitized_name)
 
         # Create location-specific folders for thumbnails, geotiffs, geojsons, and CSV
@@ -566,8 +579,6 @@ def geo_hash_handler(
         os.makedirs(geotiffs_folder, exist_ok=True)
         os.makedirs(geojsons_folder, exist_ok=True)
 
-        polygon = geohash_to_polygon(geohash)
-        bbox = list(polygon.bounds)
 
         current_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
@@ -633,8 +644,9 @@ if __name__ == "__main__":
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"
 
+    BBOX = latlon_to_bbox(LAT, LON, BBOX_RANGE)
     GEOHASH = latlon_to_geohash(LAT, LON, range_km=BBOX_RANGE)
-    print(f"Generated Geohash: {GEOHASH}")
+    print(f"Generated BBOX: {BBOX}")
 
     token_info = get_access_token(USERNAME, PASSWORD)
     if token_info:
@@ -649,6 +661,7 @@ if __name__ == "__main__":
                 base_output_folder,
                 START_DATE,
                 END_DATE,
+                BBOX,
                 GEOHASH
             )
             
