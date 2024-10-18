@@ -244,7 +244,8 @@ def search_images(
         print(description)
 
         print("-" * columns)
-        print("Duration :", duration, "days" if duration > 1 else "day")
+        print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
+        print("Duration :", duration)
 
         total_items = 0
         with tqdm(total=duration, desc="", unit="day") as pbar:
