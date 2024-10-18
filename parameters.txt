@@ -1,4 +1,4 @@
-start_date=2020-01-01
+start_date=2022-01-01
 end_date=2024-10-01
 lat=37.773972
 long=-122.431297

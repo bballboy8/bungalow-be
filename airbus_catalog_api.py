@@ -18,14 +18,12 @@ from utils import check_csv_and_rename_output_dir, download_thumbnails, process_
 columns = shutil.get_terminal_size().columns
 
 
-# Configuration
 API_KEY = "F9FsJJG8UncZGjJ9UcYEqMJgw6TBUpMiNuMCjCtORhB2KV9gcKlD4TiR6ydvLCcLCtBJtZIA8RNha-U9tTVwbA=="
-# START_DATE = '2024-01-01'  # Specify the start date in 'YYYY-MM-DD' format
-# END_DATE = '2024-08-07'
+
 GEOHASH = "w"
 ITEMS_PER_PAGE = 50
 START_PAGE = 1
-# WORKSPACE = "public-pneo"
+BATCH_SIZE = 14
 
 def get_acces_token():
     headers = {
@@ -127,6 +125,7 @@ def process_features(response_data, csv_writer, geojson_features):
         download_thumbnails_dict = {
             "url": feature.get("_links").get("thumbnail").get("href"),
             "id": feature.get("properties").get("id"),
+            "geometry": feature.get("geometry"),
         }
         thumbnail_urls.append(download_thumbnails_dict)
         properties = feature.get("properties", {})
@@ -238,21 +237,23 @@ def search_images(
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
         date_difference = (end_date - current_date).days + 1
+        duration = math.ceil(date_difference / BATCH_SIZE)
 
         print("-" * columns)
         description = f"Processing Airbus Catalog\nDates: {current_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')} \n lat: {lat} and lon: {lon} \n Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}"
         print(description)
 
         print("-" * columns)
-        print("Duration :", date_difference, "days" if date_difference > 1 else "day")
+        print("Duration :", duration, "days" if duration > 1 else "day")
 
         total_items = 0
-        with tqdm(total=date_difference, desc="", unit="day") as pbar:
+        with tqdm(total=duration, desc="", unit="day") as pbar:
             while current_date <= end_date:
                 current_page = START_PAGE
                 while True:
                     start_date_str = current_date.strftime("%Y-%m-%dT00:00:00.000Z")
-                    end_date_str = current_date.strftime("%Y-%m-%dT23:59:59.999Z")
+                    end_time = (current_date + timedelta(days=BATCH_SIZE))
+                    end_date_str = end_time.strftime("%Y-%m-%dT23:59:59.999Z")
                     SEARCH_API_ENDPOINT = "https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch"
                     body = {
                         "acquisitionDate" :f"[{start_date_str},{end_date_str}]" ,
@@ -280,7 +281,7 @@ def search_images(
                         break
                     current_page += 1
 
-                current_date += timedelta(days=1)
+                current_date += timedelta(days=BATCH_SIZE)
 
                 pbar.update(1)
                 pbar.refresh()

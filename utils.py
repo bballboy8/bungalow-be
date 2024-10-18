@@ -72,11 +72,25 @@ def process_geojson(features, OUTPUT_GEOJSON_FOLDER):
         with open(geojson_path, "w") as geojson_file:
             json.dump(geojson_data, geojson_file, indent=4)
 
+def calculate_bbox(geometry):
+    """Calculate the bounding box from the GeoJSON polygon coordinates."""
+    coordinates = geometry['coordinates'][0]  # Assuming the first polygon
+    longitudes = [coord[0] for coord in coordinates]
+    latitudes = [coord[1] for coord in coordinates]
+    
+    min_long = min(longitudes)
+    max_long = max(longitudes)
+    min_lat = min(latitudes)
+    max_lat = max(latitudes)
+    
+    return min_long, min_lat, max_long, max_lat
+
 
 def save_image(feature, OUTPUT_THUMBNAILS_FOLDER, OUTPUT_GEOTIFF_FOLDER, AUTH_TOKEN):
     """Downloads an image from the provided URL and saves it to the specified path."""
     try:
         url = feature.get("url")
+        bbox = calculate_bbox(feature.get("geometry"))
         save_path = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{feature.get('id')}.png")
         headers = {"Authorization": "Bearer " + AUTH_TOKEN}
         response = requests.get(url, headers=headers, stream=True)
@@ -85,7 +99,7 @@ def save_image(feature, OUTPUT_THUMBNAILS_FOLDER, OUTPUT_GEOTIFF_FOLDER, AUTH_TO
             with open(save_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
-            # georectify_image(save_path, feature.get("bbox"), OUTPUT_GEOTIFF_FOLDER, feature.get("id"))
+            georectify_image(save_path, bbox, OUTPUT_GEOTIFF_FOLDER, feature.get("id"))
         else:
             print(f"Error during download: {response.status_code}")
             print(response.text)
