@@ -1,6 +1,6 @@
 start_date=2020-01-01
 end_date=2020-01-10
-lat=40.7021
-long=-76.5258
-range=150
+lat=37.773972
+long=-122.431297
+range=1500
 output_dir=/Users/amankhan/Documents/catalogs

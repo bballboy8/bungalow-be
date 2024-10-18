@@ -25,7 +25,7 @@ API_KEY = 'F9FsJJG8UncZGjJ9UcYEqMJgw6TBUpMiNuMCjCtORhB2KV9gcKlD4TiR6ydvLCcLCtBJt
 GEOHASH = 'w'
 ITEMS_PER_PAGE = 500
 START_PAGE = 1
-WORKSPACE = "public-pneo"
+# WORKSPACE = "public-pneo"
 
 
 
@@ -164,27 +164,21 @@ def search_images(api_key, bbox, start_date, end_date, output_csv_file=None, out
                     start_date_str = current_date.strftime('%Y-%m-%dT00:00:00.000Z')
                     end_date_str = current_date.strftime('%Y-%m-%dT23:59:59.999Z')
 
-                    querystring = {
-                        "bbox": bbox,
-                        "acquisitionDate": f"[{start_date_str},{end_date_str}]",
-                        "itemsPerPage": ITEMS_PER_PAGE,
-                        "startPage": current_page,
-                        "workspace": WORKSPACE
-                    }
-
                     # Make a GET request to the search endpoint
-                    search_response = requests.get(
-                        'https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch',
-                        headers=search_headers,
-                        params=querystring
-                    )
-
-                    if search_response.status_code == 200:
-                        response_data = search_response.json()
-
+                    SEARCH_API_ENDPOINT = 'https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch'
+                    body = {
+                        # "acquisitionDate" :f"[{start_date_str},{end_date_str}" ,
+                        "itemsPerPage": 10,
+                        "startPage": current_page,
+                        "bbox":bbox
+                    }
+                    response = requests.post(SEARCH_API_ENDPOINT, json=body, headers=search_headers)
+                    if response.status_code == 200:
+                        response_data = response.json()
                         # Process each feature and write to CSV and GeoJSON
+                        total_records = response_data.get('totalResults', 0)
                         features = response_data.get('features', [])
-                        total_items += len(features)
+                        total_items += total_records
 
                         for feature in features:
                             properties = feature.get('properties', {})
@@ -237,16 +231,14 @@ def search_images(api_key, bbox, start_date, end_date, output_csv_file=None, out
                             }
                             geojson_features.append(geojson_feature)
 
-                        if len(features) < ITEMS_PER_PAGE:
-                            break  # No more pages to process
+                        if total_records <= current_page * ITEMS_PER_PAGE:
+                            break
 
                     else:
                         # logging.error(
                         #     f"Failed to fetch images for {current_date.strftime('%Y-%m-%d')}: {search_response.text}")
                         break  # Exit pagination loop on error
-
                     current_page += 1
-                    time.sleep(1.1)  # Delay for 1.1 seconds between each API call
 
                 current_date += timedelta(days=1)
 
