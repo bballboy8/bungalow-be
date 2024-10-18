@@ -14,6 +14,7 @@ import pygeohash as pgh
 import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import shutil
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -283,3 +284,4 @@ if __name__ == "__main__":
         OUTPUT_DIR,
         BBOX
     )
+    check_csv_and_rename_output_dir(OUTPUT_CSV_FILE, OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "maxar")

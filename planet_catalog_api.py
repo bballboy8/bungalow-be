@@ -18,6 +18,7 @@ from tqdm import tqdm
 import math
 import shutil
 from pyproj import Geod
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -290,6 +291,7 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
 
     # Save all collected features to files after processing all days
     save_features_to_files(all_features, OUTPUT_DIR)
+    
 
 
 if __name__ == "__main__":
@@ -320,3 +322,5 @@ if __name__ == "__main__":
         OUTPUT_DIR,
         BBOX
     )
+
+    check_csv_and_rename_output_dir(f"{OUTPUT_DIR}/output_planet.csv", OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "planet")
