@@ -12,6 +12,7 @@ import os
 from tqdm import tqdm
 import math
 import shutil
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -297,3 +298,5 @@ if __name__ == "__main__":
     OUTPUT_CSV_FILE = f'{OUTPUT_DIR}/output_airbus.csv'
     OUTPUT_GEOJSON_FILE = f'{OUTPUT_DIR}/output_airbus.geojson'
     search_images(API_KEY, BBOX, args.start_date, args.end_date, OUTPUT_CSV_FILE, OUTPUT_GEOJSON_FILE, LAT, LON, OUTPUT_DIR)
+
+    check_csv_and_rename_output_dir(OUTPUT_CSV_FILE, OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "Airbus")

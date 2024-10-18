@@ -19,6 +19,7 @@ import geohash2
 import shutil
 import math
 from pyproj import Geod
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -121,7 +122,7 @@ LOCATIONS = [
     # {"name": "Subi Reef Naval Base", "lat": 10.92492, "lon": 114.0839},
     # {"name": "Cambodia Ream Naval Base", "lat": 10.50633, "lon": 103.61229},
     # {"name": "Mischief Reef Naval Base", "lat": 9.90389, "lon": 115.53561},
-    {"name": "Fiery Cross Reef Naval Base", "lat": 9.54874, "lon": 112.88915}
+    {"name": "location"}
 ]
 
 
@@ -448,7 +449,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
             pbar.update(1)
             pbar.refresh()
             
-    tqdm.write(f"Completed Processing Capella Location: {image_prefix}")
+    tqdm.write(f"Completed Processing Capella")
 
 
 def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon, bbox_range):
@@ -481,7 +482,14 @@ def process_locations(locations, start_date, end_date, access_token, output_fold
             search_images(lat, lon, bbox_range, start_date, end_date, access_token,
                         location_output_folder, sanitized_name, filter_keyword, csv_file_path)
             
-
+        check_csv_and_rename_output_dir(
+            csv_file_path,
+            base_output_folder,
+            start_date,
+            end_date,
+            OUTPUT_DIR,
+            "capella"
+        )
         print("All the Locations Processed")
 
 
@@ -633,6 +641,7 @@ if __name__ == "__main__":
     LAT = args.lat
     LON = args.long
     BBOX_RANGE = args.range
+    OUTPUT_DIR = args.output_dir
     base_output_folder = args.output_dir + f"/capella/{START_DATE}_{END_DATE}"
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"

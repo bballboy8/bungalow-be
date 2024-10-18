@@ -28,6 +28,7 @@ import argparse
 from tqdm import tqdm
 import threading
 from pyproj import Geod
+from utils import check_folder_content_and_rename_output_dir
 
 
 import shutil
@@ -486,6 +487,7 @@ if __name__ == "__main__":
         
     # Output folder variable
     output_folder = args.output_dir + f"/skyfi/{START_DATE}_{END_DATE}"
+    os.makedirs(output_folder, exist_ok=True)
 
     # Create output directories for thumbnails, geojson, and geotiffs
     thumbnails_folder = os.path.join(output_folder, "thumbnails")
@@ -505,5 +507,14 @@ if __name__ == "__main__":
         geojson_folder,
         geotiffs_folder,
         BBOX
+    )
+
+    check_folder_content_and_rename_output_dir(
+        thumbnails_folder,
+        output_folder,
+        START_DATE,
+        END_DATE,
+        args.output_dir,
+        "skyfi"
     )
     

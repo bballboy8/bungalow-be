@@ -15,6 +15,7 @@ from PIL import Image, ImageChops
 import numpy as np
 import rasterio
 from rasterio.transform import from_bounds
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -340,3 +341,5 @@ if __name__ == "__main__":
     # Check if the directory exists
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     main(START_DATE, END_DATE, OUTPUT_DIR, BBOX)
+
+    check_csv_and_rename_output_dir(OUTPUT_CSV_FILE, OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "blacksky")
