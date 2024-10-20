@@ -23,7 +23,7 @@ API_KEY = "F9FsJJG8UncZGjJ9UcYEqMJgw6TBUpMiNuMCjCtORhB2KV9gcKlD4TiR6ydvLCcLCtBJt
 GEOHASH = "w"
 ITEMS_PER_PAGE = 50
 START_PAGE = 1
-BATCH_SIZE = 14
+BATCH_SIZE = 28
 
 def get_acces_token():
     headers = {
@@ -122,67 +122,73 @@ def process_features(response_data, csv_writer, geojson_features):
 
     thumbnail_urls = []
     for feature in features:
-        download_thumbnails_dict = {
-            "url": feature.get("_links").get("thumbnail").get("href"),
-            "id": feature.get("properties").get("id"),
-            "geometry": feature.get("geometry"),
-        }
-        thumbnail_urls.append(download_thumbnails_dict)
-        properties = feature.get("properties", {})
-        geometry = feature.get("geometry", {})
+        try:
+            download_thumbnails_dict = {
+                "url": feature.get("_links",{}).get("thumbnail",{}).get("href"),
+                "id": feature.get("properties").get("id"),
+                "geometry": feature.get("geometry"),
+            }
+            if not download_thumbnails_dict["url"]:
+                continue
+            thumbnail_urls.append(download_thumbnails_dict)
+            properties = feature.get("properties", {})
+            geometry = feature.get("geometry", {})
 
-        # Format dates and numeric values
-        acquisition_date = format_datetime(properties.get("acquisitionDate", ""))
-        publication_date = format_datetime(properties.get("publicationDate", ""))
-        withhold_readable, withhold_hours = calculate_withhold_time(
-            properties.get("acquisitionDate", ""), properties.get("publicationDate", "")
-        )
+            # Format dates and numeric values
+            acquisition_date = format_datetime(properties.get("acquisitionDate", ""))
+            publication_date = format_datetime(properties.get("publicationDate", ""))
+            withhold_readable, withhold_hours = calculate_withhold_time(
+                properties.get("acquisitionDate", ""), properties.get("publicationDate", "")
+            )
 
-        incidence_angle = format_float(properties.get("incidenceAngle", ""), 2)
-        azimuth_angle = format_float(properties.get("azimuthAngle", ""), 2)
+            incidence_angle = format_float(properties.get("incidenceAngle", ""), 2)
+            azimuth_angle = format_float(properties.get("azimuthAngle", ""), 2)
 
-        # Sanitize values for CSV output
-        csv_writer.writerow(
-            [
-                properties.get("acquisitionIdentifier", ""),
-                json.dumps(geometry),
-                acquisition_date,
-                publication_date,
-                properties.get("platform", ""),
-                properties.get("sensorType", ""),
-                properties.get("resolution", ""),
-                properties.get("constellation", ""),
-                properties.get("cloudCover", ""),
-                incidence_angle,
-                azimuth_angle,
-                withhold_readable,
-                withhold_hours,
-            ]
-        )
+            # Sanitize values for CSV output
+            csv_writer.writerow(
+                [
+                    properties.get("acquisitionIdentifier", ""),
+                    json.dumps(geometry),
+                    acquisition_date,
+                    publication_date,
+                    properties.get("platform", ""),
+                    properties.get("sensorType", ""),
+                    properties.get("resolution", ""),
+                    properties.get("constellation", ""),
+                    properties.get("cloudCover", ""),
+                    incidence_angle,
+                    azimuth_angle,
+                    withhold_readable,
+                    withhold_hours,
+                ]
+            )
 
-        # Add properties back with formatted angles and withhold
-        geojson_feature = {
-            "id": properties.get("id", ""),
-            "type": "Feature",
-            "geometry": geometry,
-            "properties": {
-                "acquisitionIdentifier": sanitize_value(
-                    properties.get("acquisitionIdentifier", "")
-                ),
-                "acquisitionDate": acquisition_date,
-                "publicationDate": publication_date,
-                "productPlatform": sanitize_value(properties.get("platform", "")),
-                "sensorType": sanitize_value(properties.get("sensorType", "")),
-                "resolution": sanitize_value(properties.get("resolution", "")),
-                "constellation": sanitize_value(properties.get("constellation", "")),
-                "cloudCover": sanitize_value(properties.get("cloudCover", "")),
-                "incidenceAngle": incidence_angle,
-                "azimuthAngle": azimuth_angle,
-                "withholdReadable": withhold_readable,
-                "withholdHours": withhold_hours,
-            },
-        }
-        geojson_features.append(geojson_feature)
+            # Add properties back with formatted angles and withhold
+            geojson_feature = {
+                "id": properties.get("id", ""),
+                "type": "Feature",
+                "geometry": geometry,
+                "properties": {
+                    "acquisitionIdentifier": sanitize_value(
+                        properties.get("acquisitionIdentifier", "")
+                    ),
+                    "acquisitionDate": acquisition_date,
+                    "publicationDate": publication_date,
+                    "productPlatform": sanitize_value(properties.get("platform", "")),
+                    "sensorType": sanitize_value(properties.get("sensorType", "")),
+                    "resolution": sanitize_value(properties.get("resolution", "")),
+                    "constellation": sanitize_value(properties.get("constellation", "")),
+                    "cloudCover": sanitize_value(properties.get("cloudCover", "")),
+                    "incidenceAngle": incidence_angle,
+                    "azimuthAngle": azimuth_angle,
+                    "withholdReadable": withhold_readable,
+                    "withholdHours": withhold_hours,
+                },
+            }
+            geojson_features.append(geojson_feature)
+        except Exception as e:
+            logging.error(f"Failed to process feature: {e}")
+            pass
     download_thumbnails(thumbnail_urls, OUTPUT_THUMBNAILS_FOLDER, OUTPUT_GEOTIFF_FOLDER, access_token)
     process_geojson(geojson_features, OUTPUT_GEOJSON_FOLDER)
 
@@ -235,8 +241,10 @@ def search_images(
         # Iterate through each day in the date range
         current_date = datetime.strptime(start_date, "%Y-%m-%d")
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
-
+        global BATCH_SIZE
         date_difference = (end_date - current_date).days + 1
+        if date_difference < BATCH_SIZE:
+            BATCH_SIZE = date_difference
         duration = math.ceil(date_difference / BATCH_SIZE)
 
         print("-" * columns)

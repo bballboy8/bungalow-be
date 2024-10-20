@@ -24,7 +24,7 @@ columns = shutil.get_terminal_size().columns
 BLACKSKY_BASE_URL = "https://api.blacksky.com"
 AUTH_TOKEN = "R7RB3I4F7K3C276BUWZ4I4QUXHNT2TER"
 MAX_THREADS = 10
-BATCH_SIZE = 14
+BATCH_SIZE = 28
 
 
 def remove_black_borders(img):
@@ -276,8 +276,10 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     bboxes = [BBOX]
     current_date = datetime.strptime(START_DATE, "%Y-%m-%d")
     end_date = datetime.strptime(END_DATE, "%Y-%m-%d")
-
-    date_difference = (end_date - current_date).days + 1 # Inclusive of end_date
+    global BATCH_SIZE
+    date_difference = (end_date - current_date).days + 1
+    if date_difference < BATCH_SIZE:
+        BATCH_SIZE = date_difference
     duration = math.ceil(date_difference / BATCH_SIZE)
     print("-" * columns)
     description = (
