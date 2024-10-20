@@ -23,6 +23,7 @@ columns = shutil.get_terminal_size().columns
 AUTH_TOKEN = "ZmFiMGQyYWEtODA5Ni00ZDAyLTkxN2QtYjAwNTg4NTc4OGNj"
 MAXAR_BASE_URL = "https://api.maxar.com/discovery/v1"
 MAX_THREADS = 10
+BATCH_SIZE = 14
 
 
 
@@ -222,22 +223,25 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
 
-    duration = (end_date - current_date).days + 1  # Inclusive of end_date
+    date_difference = (end_date - current_date).days + 1  # Inclusive of end_date
+    duration = math.ceil(date_difference / BATCH_SIZE)
+
     print("-" * columns)
     description = (f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} \n"
                    f"lat: {LAT} and lon: {LON} Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}")
     print(description)
     print("-" * columns)
-    print("Duration :", duration, "days" if duration > 1 else "day")
+    print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
+    print("Duration :", duration)
 
     with tqdm(total=duration, desc="", unit="date") as pbar:
         while current_date <= end_date:  # Inclusive of end_date
             start_time = current_date.strftime('%Y-%m-%d')
-            end_time = (current_date + timedelta(days=1)).strftime('%Y-%m-%d')
+            end_time = (current_date + timedelta(days=BATCH_SIZE)).strftime('%Y-%m-%d')
             for bbox in bboxes:
                 fetch_and_process_records(AUTH_TOKEN, bbox, start_time, end_time)
 
-            current_date += timedelta(days=1)  # Move to the next day
+            current_date += timedelta(days=BATCH_SIZE)  # Move to the next day
             pbar.update(1)  # Update progress bar
 
 
