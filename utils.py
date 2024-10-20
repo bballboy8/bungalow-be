@@ -13,11 +13,19 @@ MAX_THREADS = 10
 
 
 def check_csv_and_rename_output_dir(
-    OUTPUT_CSV_FILE, OUTPUT_DIR, START_DATE, END_DATE, output_base_dir, vendor_name
+    OUTPUT_DIR, START_DATE, END_DATE, output_base_dir, vendor_name
 ):
-    with open(OUTPUT_CSV_FILE, "r") as f:
-        reader = csv.reader(f)
-        row_count = sum(1 for _ in reader)
+    # Full path of the output CSV file
+    OUTPUT_CSV_FILE = os.path.join(OUTPUT_DIR, f"output_{vendor_name}.csv")
+    
+    if not os.path.exists(OUTPUT_CSV_FILE):
+        print(f"CSV file not found: {OUTPUT_CSV_FILE}")
+        return
+    
+    try:
+        with open(OUTPUT_CSV_FILE, "r") as f:
+            reader = csv.reader(f)
+            row_count = sum(1 for _ in reader)
 
         if row_count < 2:
             print("No data found for the given parameters")
@@ -31,7 +39,15 @@ def check_csv_and_rename_output_dir(
                     counter += 1
                 new_output_dir = f"{new_output_dir}_{counter}"
 
-            os.rename(OUTPUT_DIR, new_output_dir)
+            # Try renaming the directory
+            try:
+                os.rename(OUTPUT_DIR, new_output_dir)
+                print(f"Directory renamed to: {new_output_dir}")
+            except PermissionError:
+                print(f"Permission denied: could not rename {OUTPUT_DIR}")
+    
+    except Exception as e:
+        print(f"Error processing file: {e}")
 
 
 def check_folder_content_and_rename_output_dir(

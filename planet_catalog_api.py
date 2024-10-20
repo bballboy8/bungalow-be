@@ -323,4 +323,4 @@ if __name__ == "__main__":
         BBOX
     )
 
-    check_csv_and_rename_output_dir(f"{OUTPUT_DIR}/output_planet.csv", OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "planet")
+    check_csv_and_rename_output_dir(OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "planet")

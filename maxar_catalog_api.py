@@ -284,4 +284,4 @@ if __name__ == "__main__":
         OUTPUT_DIR,
         BBOX
     )
-    check_csv_and_rename_output_dir(OUTPUT_CSV_FILE, OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "maxar")
+    check_csv_and_rename_output_dir(OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "maxar")

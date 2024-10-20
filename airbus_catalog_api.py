@@ -312,7 +312,7 @@ if __name__ == "__main__":
     START_DATE = args.start_date
     END_DATE = args.end_date
 
-    OUTPUT_DIR = args.output_dir + f"/Airbus/{START_DATE}_{END_DATE}"
+    OUTPUT_DIR = args.output_dir + f"/airbus/{START_DATE}_{END_DATE}"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/thumbnails"
@@ -345,5 +345,5 @@ if __name__ == "__main__":
     )
 
     check_csv_and_rename_output_dir(
-        OUTPUT_CSV_FILE, OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "Airbus"
+        OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "airbus"
     )

@@ -122,7 +122,7 @@ LOCATIONS = [
     # {"name": "Subi Reef Naval Base", "lat": 10.92492, "lon": 114.0839},
     # {"name": "Cambodia Ream Naval Base", "lat": 10.50633, "lon": 103.61229},
     # {"name": "Mischief Reef Naval Base", "lat": 9.90389, "lon": 115.53561},
-    {"name": "location"}
+    {"name": "capella"}
 ]
 
 
@@ -465,14 +465,13 @@ def process_locations(locations, start_date, end_date, access_token, output_fold
         # end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
         for location in locations:
-            sanitized_name = sanitize_filename(location['name'])
-            location_output_folder = os.path.join(output_folder, sanitized_name)
-
+            location_output_folder = os.path.join(output_folder)
+            sanitized_name = "capella"
             # Create location-specific folders for thumbnails, geotiffs, geojsons, and CSV
             thumbnails_folder = os.path.join(location_output_folder, "thumbnails")
             geotiffs_folder = os.path.join(location_output_folder, "geotiffs")
             geojsons_folder = os.path.join(location_output_folder, "geojsons")
-            csv_file_path = os.path.join(location_output_folder, f"{sanitized_name}_output.csv")
+            csv_file_path = os.path.join(location_output_folder, f"output_{sanitized_name}.csv")
 
             # Ensure the directories exist
             os.makedirs(thumbnails_folder, exist_ok=True)
@@ -483,14 +482,12 @@ def process_locations(locations, start_date, end_date, access_token, output_fold
                         location_output_folder, sanitized_name, filter_keyword, csv_file_path)
             
         check_csv_and_rename_output_dir(
-            csv_file_path,
             base_output_folder,
             start_date,
             end_date,
             OUTPUT_DIR,
             "capella"
         )
-        print("All the Locations Processed")
 
 
 def process_geojson_files(geojson_folder, start_date, end_date, access_token, output_folder, filter_keyword):
@@ -510,7 +507,7 @@ def process_geojson_files(geojson_folder, start_date, end_date, access_token, ou
         thumbnails_folder = os.path.join(output_folder_for_geojson, "thumbnails")
         geotiffs_folder = os.path.join(output_folder_for_geojson, "geotiffs")
         geojsons_folder = os.path.join(output_folder_for_geojson, "geojsons")
-        csv_file_path = os.path.join(output_folder_for_geojson, f"{sanitized_name}_output.csv")
+        csv_file_path = os.path.join(output_folder_for_geojson, f"output_{sanitized_name}.csv")
 
         # Ensure the directories exist
         os.makedirs(thumbnails_folder, exist_ok=True)
@@ -572,7 +569,7 @@ def geo_hash_handler(
         thumbnails_folder = os.path.join(location_output_folder, "thumbnails")
         geotiffs_folder = os.path.join(location_output_folder, "geotiffs")
         geojsons_folder = os.path.join(location_output_folder, "geojsons")
-        csv_file_path = os.path.join(location_output_folder, f"{sanitized_name}_output.csv")
+        csv_file_path = os.path.join(location_output_folder, f"output_{sanitized_name}.csv")
 
         # Ensure the directories exist
         os.makedirs(thumbnails_folder, exist_ok=True)
