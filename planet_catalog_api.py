@@ -17,8 +17,7 @@ import os
 from tqdm import tqdm
 import math
 import shutil
-from pyproj import Geod
-from utils import check_csv_and_rename_output_dir
+from utils import check_csv_and_rename_output_dir, latlon_to_geojson
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -30,7 +29,7 @@ API_KEY = 'PLAKba216105b17b4dbda5e1cdfec67ba836'
 GEOHASH = 'w'              # Specify the initial geohash
 GEOHASH_LENGTH = 2         # Specify the desired geohash length
 ITEM_TYPE = "SkySatCollect"  # Specify the item type
-
+BATCH_SIZE = 28
 # Output files
 # OUTPUT_CSV_FILE = r'O:\Professional__Work\Heimdall\planet\output_planet.csv'
 # OUTPUT_GEOJSON_FILE = r'O:\Professional__Work\Heimdall\planet\output_planet.geojson'
@@ -190,6 +189,7 @@ def save_features_to_files(features, output_dir='.'):
 
         # Write the data rows
         for feature in features:
+            print(feature)
             properties = feature.get('properties', {})
             geometry = feature.get('geometry', {})
             acquisition_date = format_datetime(properties.get('acquired', ''))
@@ -260,20 +260,25 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
 
-    duration = (end_date - current_date).days + 1
+    global BATCH_SIZE
+    date_difference = (end_date - current_date).days + 1
+    if date_difference < BATCH_SIZE:
+        BATCH_SIZE = date_difference
+    duration = math.ceil(date_difference / BATCH_SIZE)
+
     all_features = []  # Collect all features for all dates
     print("-"*columns)
     description = f"Processing Planet Catalog \nDate Range: {current_date.date()} to {end_date.date()} \n lat: {LAT} and lon: {LON} Range:{RANGE} \nOutput Directory: {OUTPUT_DIR}"
     print(description)
     print("-"*columns)
-    print("Duration :", duration, "days" if duration > 1 else "day")
+    print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
+    print("Duration :", duration)
     # Iterate over each day in the date range
     with tqdm(total=duration, desc="", unit="date") as pbar:
 
         while current_date <= end_date:
             start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
-            end_time = current_date.strftime('%Y-%m-%dT23:59:59Z')
-            date_str = current_date.strftime('%Y-%m-%d')
+            end_time = (current_date + timedelta(days=BATCH_SIZE)).strftime('%Y-%m-%dT00:00:00Z')
 
             # Process each geohash
             for bbox in bboxes:
@@ -281,7 +286,7 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
                 features = query_planet_data(bbox, start_time, end_time, ITEM_TYPE)
                 all_features.extend(features)
 
-            current_date += timedelta(days=1)
+            current_date += timedelta(days=BATCH_SIZE)
 
             pbar.refresh()
             pbar.update(1)
@@ -311,7 +316,7 @@ if __name__ == "__main__":
 
     RANGE = int(args.range)
     LAT, LON = args.lat, args.long
-    BBOX = args.bbox.replace("t", "-")
+    BBOX = latlon_to_geojson(LAT, LON, RANGE)
     print(f"Generated BBOX: {BBOX}")
 
     # Check if the directory exists
@@ -323,4 +328,4 @@ if __name__ == "__main__":
         BBOX
     )
 
-    check_csv_and_rename_output_dir(f"{OUTPUT_DIR}/output_planet.csv", OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "planet")
+    check_csv_and_rename_output_dir(OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "planet")
