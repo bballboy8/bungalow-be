@@ -7,7 +7,7 @@ from PIL import Image, ImageChops
 import numpy as np
 import rasterio
 from rasterio.transform import from_bounds
-
+from pyproj import Geod
 
 MAX_THREADS = 10
 
@@ -220,3 +220,43 @@ def process_geojson(features, OUTPUT_GEOJSON_FOLDER):
 
         with open(geojson_path, "w") as geojson_file:
             json.dump(geojson_data, geojson_file, indent=4)
+
+
+def latlon_to_geojson(lat, lon, range_meters):
+    """Generate a GeoJSON Polygon from a lat, lon, and range in meters."""
+    geod = Geod(ellps="WGS84")
+    
+    # Get bounding box coordinates
+    north_lon, north_lat, _ = geod.fwd(lon, lat, 0, range_meters)
+    south_lon, south_lat, _ = geod.fwd(lon, lat, 180, range_meters)
+    east_lon, east_lat, _ = geod.fwd(lon, lat, 90, range_meters) 
+    west_lon, west_lat, _ = geod.fwd(lon, lat, 270, range_meters)
+    
+    # Format as GeoJSON Polygon
+    geojson_geometry = {
+        "type": "Polygon",
+        "coordinates": [[
+            [west_lon, south_lat],
+            [east_lon, south_lat],
+            [east_lon, north_lat],
+            [west_lon, north_lat],
+            [west_lon, south_lat] 
+        ]]
+    }
+    
+    return geojson_geometry
+
+def latlon_to_wkt(lat, lon, range_meters):
+    """Generate a WKT POLYGON from a lat, lon, and range in meters."""
+    geod = Geod(ellps="WGS84")
+    
+    # Get bounding box coordinates
+    north_lon, north_lat, _ = geod.fwd(lon, lat, 0, range_meters)
+    south_lon, south_lat, _ = geod.fwd(lon, lat, 180, range_meters)
+    east_lon, east_lat, _ = geod.fwd(lon, lat, 90, range_meters)
+    west_lon, west_lat, _ = geod.fwd(lon, lat, 270, range_meters)
+    
+    # Format as WKT POLYGON
+    wkt_polygon = f"POLYGON(({west_lon} {south_lat}, {east_lon} {south_lat}, {east_lon} {north_lat}, {west_lon} {north_lat}, {west_lon} {south_lat}))"
+    
+    return wkt_polygon

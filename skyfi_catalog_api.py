@@ -28,8 +28,8 @@ import argparse
 from tqdm import tqdm
 import threading
 from pyproj import Geod
-from utils import check_folder_content_and_rename_output_dir
-
+from utils import check_folder_content_and_rename_output_dir, latlon_to_wkt
+import math
 
 import shutil
 
@@ -54,6 +54,7 @@ geohash_input = [
 # The length is 'how many more' -- so 2 would provide a geohash3
 geohash_seed = "w"
 geohash_length = 2
+BATCH_SIZE = 28
 
 def latlon_to_geohash(lat, lon, range_km):
     # Map the range to geohash precision
@@ -70,7 +71,7 @@ def latlon_to_geohash(lat, lon, range_km):
 # START_DATE_STR = '2023-01-01'
 # END_DATE_STR = '2024-08-31'
 
-product_types = ["SAR"]
+product_types = ["DAY"]
 open_data = False
 
 
@@ -273,7 +274,6 @@ def search_skyfi_archive(aoi, from_date, to_date, product_types):
     }
     next_page = 0
     all_archives = []
-
     while True:
         payload = {
             "aoi": aoi,
@@ -285,7 +285,6 @@ def search_skyfi_archive(aoi, from_date, to_date, product_types):
         }
 
         response = requests.post(url, json=payload, headers=headers)
-
         if response.status_code == 200:
             archives = response.json()
             if 'archives' in archives and archives['archives']:
@@ -343,14 +342,11 @@ def date_range(start_date, end_date, range_days):
 def worker(geohash, single_date, throttle_time, results, geojson_folder, thumbnails_folder, geotiffs_folder):
     retry_count = 0
     max_retries = 5
+    aoi = latlon_to_wkt(LAT, LON, RANGE)
     while retry_count < max_retries:
-        polygon = geohash_to_polygon(geohash)
-        if polygon is None:
-            # logging.error(f"Failed to create polygon for geohash: {geohash}")
-            return
-        aoi = polygon.wkt
-        from_date = single_date.strftime("%Y-%m-%dT00:00:00.000Z")
-        to_date = single_date.strftime("%Y-%m-%dT23:59:59.000Z")
+        from_date = single_date.strftime("%Y-%m-%dT00:00:00+00:00")
+        timedelta_days = BATCH_SIZE
+        to_date = (single_date + timedelta(days=timedelta_days)).strftime("%Y-%m-%dT00:00:00+00:00")
 
         # logging.info(f"Submitting request for geohash: {geohash}, date: {single_date.strftime('%Y-%m-%d')}")
 
@@ -419,7 +415,11 @@ def skyfi_executor(
     throttle_time = 0.001
     results = []
 
-    duration = (end_date - start_date).days + 1
+    global BATCH_SIZE
+    date_difference = (end_date - start_date).days + 1
+    if date_difference < BATCH_SIZE:
+        BATCH_SIZE = date_difference
+    duration = math.ceil(date_difference / BATCH_SIZE)
 
     # Determine the list of geohashes to process based on the input mode
     if GENERATED_BBOX:
@@ -444,8 +444,7 @@ def skyfi_executor(
 
             for geohash in geohashes:
                 # Loop through each date in the date range
-                for single_date in date_range(start_date, end_date, 1):
-                    # Submit a task to the executor for each geohash-date combination
+                for single_date in date_range(start_date, end_date, BATCH_SIZE):
                     future = executor.submit(worker, geohash, single_date, throttle_time, results, GEOJSON_FOLDER, THUMBNAILS_FOLDER, GEOTIFFS_FOLDER)
                     futures.append(future)
 
