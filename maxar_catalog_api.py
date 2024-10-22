@@ -128,13 +128,17 @@ def save_image(feature):
     """Downloads an image from the provided URL and saves it to the specified path."""
     try:
         url = feature.get('assets', {}).get('browse', {}).get('href')
-        save_path = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{feature.get('id')}.tif")
+        save_path_tif = os.path.join(OUTPUT_GEOTIFFS_FOLDER, f"{feature.get('id')}.tif")
+        save_path_png = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{feature.get('id')}.png")
         headers = {"Accept": "application/json", "MAXAR-API-KEY": AUTH_TOKEN}
         response = requests.get(url, stream=True, headers=headers)
         response.raise_for_status()
-        
-        with open(save_path, 'wb') as out_file:
-            out_file.write(response.content)
+        content = response.content
+        with open(save_path_tif, 'wb') as out_file:
+            out_file.write(content)
+
+        with open(save_path_png, 'wb') as out_file:
+            out_file.write(content)
         
         return True
     except requests.RequestException as e:
@@ -273,7 +277,10 @@ if __name__ == "__main__":
     print(f"Generated BBOX: {BBOX}")
 
 
-    OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/geotiffs"
+    OUTPUT_GEOTIFFS_FOLDER = f"{OUTPUT_DIR}/geotiffs"
+    os.makedirs(OUTPUT_GEOTIFFS_FOLDER, exist_ok=True)
+
+    OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/thumbnails"
     os.makedirs(OUTPUT_THUMBNAILS_FOLDER, exist_ok=True)
 
     OUTPUT_GEOJSON_FOLDER = f"{OUTPUT_DIR}/geojsons"
