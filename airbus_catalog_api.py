@@ -253,10 +253,10 @@ def search_images(
 
         print("-" * columns)
         print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
-        print("Duration :", duration)
+        print("Duration :", duration, "batch")
 
         total_items = 0
-        with tqdm(total=duration, desc="", unit="day") as pbar:
+        with tqdm(total=duration, desc="", unit="batch") as pbar:
             while current_date <= end_date:
                 current_page = START_PAGE
                 while True:
