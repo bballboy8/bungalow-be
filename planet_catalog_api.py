@@ -156,22 +156,37 @@ def query_planet_data(aoi_geojson, start_date, end_date, item_type):
 
     try:
         response = requests.post(search_endpoint, headers=headers, json=request_payload)
-        response.raise_for_status()
-        features = response.json()['features']
-        return features
+        return response.json()
     except requests.RequestException as e:
         # print(f"Failed to fetch data: {str(e)}")
         return []
+    
+def query_planet_paginated_data(next_url):
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'api-key ' + API_KEY
+    }
+    try:
+        response = requests.get(next_url, headers=headers)
+        return response.json()
+    except requests.RequestException as e:
+        # print(f"Failed to fetch data: {str(e)}")
+        return []
+    
+def process_geojson(features):
+    """Saves each feature as a separate GeoJSON file."""
+    for feature in features:
+        feature_id = feature.get("properties", {}).get("id", "")
+        geojson_filename = f"{feature_id}.geojson"
+        geojson_path = os.path.join(OUTPUT_GEOJSON_FOLDER, geojson_filename)
+
+        with open(geojson_path, "w") as geojson_file:
+            json.dump(feature, geojson_file, indent=4)
+
 
 
 # Function to save features to CSV and GeoJSON
 def save_features_to_files(features, output_dir='.'):
-    # Prepare CSV output
-    OUTPUT_CSV_FILE = f"{output_dir}/output_planet.csv"
-    os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
-
-    OUTPUT_GEOJSON_FILE = f"{output_dir}/output_planet.geojson"
-    os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
 
     with open(OUTPUT_CSV_FILE, mode='w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
@@ -189,7 +204,6 @@ def save_features_to_files(features, output_dir='.'):
 
         # Write the data rows
         for feature in features:
-            print(feature)
             properties = feature.get('properties', {})
             geometry = feature.get('geometry', {})
             acquisition_date = format_datetime(properties.get('acquired', ''))
@@ -237,16 +251,7 @@ def save_features_to_files(features, output_dir='.'):
             }
             geojson_features.append(geojson_feature)
 
-    # Save the GeoJSON file
-    geojson_output = {
-        "type": "FeatureCollection",
-        "features": geojson_features
-    }
-
-    with open(OUTPUT_GEOJSON_FILE, 'w') as geojson_file:
-        json.dump(geojson_output, geojson_file, indent=4)
-
-    # print(f"CSV and GeoJSON files have been saved:\nCSV: {OUTPUT_CSV_FILE}\nGeoJSON: {OUTPUT_GEOJSON_FILE}")
+    process_geojson(geojson_features)
 
 
 # Main function to process all dates first and then save the files
@@ -280,11 +285,18 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
             start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
             end_time = (current_date + timedelta(days=BATCH_SIZE)).strftime('%Y-%m-%dT00:00:00Z')
 
-            # Process each geohash
             for bbox in bboxes:
-                # print(f"Processing date: {date_str}, Geohash: {geohash}")
                 features = query_planet_data(bbox, start_time, end_time, ITEM_TYPE)
-                all_features.extend(features)
+                all_features.extend(features['features'])
+                while True:
+                    try:
+                        if features['features'] and features.get("_links", {}).get("_next"):
+                            features = query_planet_paginated_data(features["_links"]["_next"])
+                            all_features.extend(features['features'])
+                        else:
+                            break
+                    except Exception as e:
+                        break
 
             current_date += timedelta(days=BATCH_SIZE)
 
@@ -318,6 +330,18 @@ if __name__ == "__main__":
     LAT, LON = args.lat, args.long
     BBOX = latlon_to_geojson(LAT, LON, RANGE)
     print(f"Generated BBOX: {BBOX}")
+
+    OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/thumbnails"
+    os.makedirs(OUTPUT_THUMBNAILS_FOLDER, exist_ok=True)
+
+    OUTPUT_GEOJSON_FOLDER = f"{OUTPUT_DIR}/geojsons"
+    os.makedirs(OUTPUT_GEOJSON_FOLDER, exist_ok=True)
+
+    OUTPUT_GEOTIFF_FOLDER = f"{OUTPUT_DIR}/geotiffs"
+    os.makedirs(OUTPUT_GEOTIFF_FOLDER, exist_ok=True)
+
+    OUTPUT_CSV_FILE = f"{OUTPUT_DIR}/output_planet.csv"
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Check if the directory exists
     os.makedirs(OUTPUT_DIR, exist_ok=True)
