@@ -260,3 +260,30 @@ def latlon_to_wkt(lat, lon, range_meters):
     wkt_polygon = f"POLYGON(({west_lon} {south_lat}, {east_lon} {south_lat}, {east_lon} {north_lat}, {west_lon} {north_lat}, {west_lon} {south_lat}))"
     
     return wkt_polygon
+
+def calculate_bbox_npolygons(geometry):
+    """Calculate the bounding box for GeoJSON Polygon or MultiPolygon coordinates."""
+    
+    def extract_coords(geometry):
+        if geometry['type'] == 'Polygon':
+            return geometry['coordinates']
+        elif geometry['type'] == 'MultiPolygon':
+            return [ring for polygon in geometry['coordinates'] for ring in polygon]
+        else:
+            raise ValueError("Unsupported geometry type")
+
+    coordinates = extract_coords(geometry)
+    
+    longitudes = []
+    latitudes = []
+    
+    for ring in coordinates:  # Loop through all rings
+        longitudes.extend([coord[0] for coord in ring])
+        latitudes.extend([coord[1] for coord in ring])
+    
+    min_long = min(longitudes)
+    max_long = max(longitudes)
+    min_lat = min(latitudes)
+    max_lat = max(latitudes)
+    
+    return min_long, min_lat, max_long, max_lat

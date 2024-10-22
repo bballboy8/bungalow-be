@@ -17,7 +17,13 @@ import os
 from tqdm import tqdm
 import math
 import shutil
-from utils import check_csv_and_rename_output_dir, latlon_to_geojson
+from utils import check_csv_and_rename_output_dir, latlon_to_geojson, calculate_bbox_npolygons
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import shutil
+from PIL import Image, ImageChops
+import numpy as np
+import rasterio
+from rasterio.transform import from_bounds
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -30,6 +36,7 @@ GEOHASH = 'w'              # Specify the initial geohash
 GEOHASH_LENGTH = 2         # Specify the desired geohash length
 ITEM_TYPE = "SkySatCollect"  # Specify the item type
 BATCH_SIZE = 28
+MAX_THREADS = 10
 # Output files
 # OUTPUT_CSV_FILE = r'O:\Professional__Work\Heimdall\planet\output_planet.csv'
 # OUTPUT_GEOJSON_FILE = r'O:\Professional__Work\Heimdall\planet\output_planet.geojson'
@@ -160,7 +167,7 @@ def query_planet_data(aoi_geojson, start_date, end_date, item_type):
     except requests.RequestException as e:
         # print(f"Failed to fetch data: {str(e)}")
         return []
-    
+
 def query_planet_paginated_data(next_url):
     headers = {
         'Content-Type': 'application/json',
@@ -172,7 +179,7 @@ def query_planet_paginated_data(next_url):
     except requests.RequestException as e:
         # print(f"Failed to fetch data: {str(e)}")
         return []
-    
+
 def process_geojson(features):
     """Saves each feature as a separate GeoJSON file."""
     for feature in features:
@@ -184,9 +191,113 @@ def process_geojson(features):
             json.dump(feature, geojson_file, indent=4)
 
 
+def remove_black_borders(img):
+    """Remove black borders from the image."""
+    bg = Image.new(img.mode, img.size, img.getpixel((0, 0)))
+    diff = ImageChops.difference(img, bg)
+    bbox = diff.getbbox()
+    if bbox:
+        return img.crop(bbox)
+    return img
+
+
+def georectify_image(
+    png_path, bbox, geotiffs_folder, image_id, target_resolution=(1500, 1500)
+):
+    try:
+        with Image.open(png_path) as img:
+            img = remove_black_borders(img)
+            img = img.resize(target_resolution, Image.Resampling.LANCZOS)
+            img_array = np.array(img)
+
+        width, height = target_resolution
+
+        left, bottom, right, top = bbox
+
+        transform = from_bounds(left, bottom, right, top, width, height)
+
+        geotiff_name = f"{image_id}.tif"
+        geotiff_path = os.path.join(geotiffs_folder, geotiff_name)
+
+        if len(img_array.shape) == 2:
+            img_array = np.expand_dims(img_array, axis=-1)
+            count = 1
+        else:
+            count = img_array.shape[2]
+
+        # Write the GeoTIFF file using rasterio
+        with rasterio.open(
+            geotiff_path,
+            "w",
+            driver="GTiff",
+            height=img_array.shape[0],
+            width=img_array.shape[1],
+            count=count,
+            dtype=img_array.dtype,
+            crs="EPSG:4326",
+            transform=transform,
+        ) as dst:
+            for i in range(1, count + 1):
+                dst.write(img_array[:, :, i - 1], i)
+
+    except Exception as e:
+        pass
+
+
+def save_image(feature):
+    """Downloads an image from the provided URL and saves it to the specified path."""
+    try:
+        url = feature.get("_links", {}).get("thumbnail", {})
+        feature['bbox'] = calculate_bbox_npolygons(feature.get('geometry', {}))
+        save_path = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{feature.get('id')}.png")
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "api-key " + API_KEY,
+        }
+        response = requests.get(url, headers=headers, stream=True)
+
+        if response.status_code == 200:
+            with open(save_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            georectify_image(
+                save_path, feature.get("bbox"), OUTPUT_GEOTIFF_FOLDER, feature.get("id")
+            )
+        else:
+            # print(f"Error during download: {response.status_code}")
+            # print(response.text)
+            pass
+    except Exception as e:
+        return False
+
+
+def download_thumbnails(features):
+    """Download and save thumbnail images for the given features."""
+
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        futures = {
+            executor.submit(save_image, feature): feature for feature in features
+        }
+
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+                if result:
+                    # print(f"Successfully downloaded thumbnail for feature {feature.get('id')}")
+                    pass
+                else:
+                    # print(f"Failed to download thumbnail for feature {feature.get('id')}")
+                    pass
+            except Exception as e:
+                # print(f"Exception occurred while downloading thumbnail for feature {feature.get('id')}: {e}")
+                pass
+
 
 # Function to save features to CSV and GeoJSON
 def save_features_to_files(features, output_dir='.'):
+
+    # Prepare GeoJSON output
+    geojson_features = []
 
     with open(OUTPUT_CSV_FILE, mode='w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
@@ -199,8 +310,7 @@ def save_features_to_files(features, output_dir='.'):
             'pixel_resolution', 'withhold_readable', 'withhold_hours'
         ])
 
-        # Prepare GeoJSON output
-        geojson_features = []
+        
 
         # Write the data rows
         for feature in features:
@@ -252,6 +362,7 @@ def save_features_to_files(features, output_dir='.'):
             geojson_features.append(geojson_feature)
 
     process_geojson(geojson_features)
+    download_thumbnails(features)
 
 
 # Main function to process all dates first and then save the files
@@ -308,7 +419,6 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
 
     # Save all collected features to files after processing all days
     save_features_to_files(all_features, OUTPUT_DIR)
-    
 
 
 if __name__ == "__main__":
