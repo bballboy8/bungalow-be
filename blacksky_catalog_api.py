@@ -343,8 +343,6 @@ if __name__ == "__main__":
     OUTPUT_CSV_FILE = f"{OUTPUT_DIR}/output_blacksky.csv"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Check if the directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
     main(START_DATE, END_DATE, OUTPUT_DIR, BBOX)
 
     check_csv_and_rename_output_dir(OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "blacksky")
