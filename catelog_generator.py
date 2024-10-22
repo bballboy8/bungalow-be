@@ -31,9 +31,9 @@ main_dir = get_main_dir()
 # Define the paths to the scripts
 scripts = [
     "airbus_catalog_api.py",
-    # "capella_master_collector.py",
-    # "planet_catalog_api.py",
-    # "skyfi_catalog_api.py",
+    "capella_master_collector.py",
+    "planet_catalog_api.py",
+    "skyfi_catalog_api.py",
     "maxar_catalog_api.py",
     "blacksky_catalog_api.py",
 ]
