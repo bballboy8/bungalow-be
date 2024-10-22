@@ -120,7 +120,7 @@ def get_maxar_collections(
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:
-        print(f"An error occurred: {err}")
+        print(f"An error occurred: {response.text}")
 
     return None
 
@@ -273,7 +273,7 @@ if __name__ == "__main__":
     print(f"Generated BBOX: {BBOX}")
 
 
-    OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/images"
+    OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/geotiffs"
     os.makedirs(OUTPUT_THUMBNAILS_FOLDER, exist_ok=True)
 
     OUTPUT_GEOJSON_FOLDER = f"{OUTPUT_DIR}/geojsons"
