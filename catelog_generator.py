@@ -8,14 +8,14 @@ import shutil
 import math
 
 
-def latlon_to_bbox(lat, lon, range_km):
+def latlon_to_bbox(lat, lon, range_meters):
     """Generate a bounding box from a lat, lon and range in km."""
-    delta_lat = range_km / 111.0
-    delta_lon = range_km / (111.0 * math.cos(math.radians(lat)))
+    delta_lat = range_meters/111000.0
+    delta_lon = range_meters / (111000.0 * math.cos(math.radians(lat)))
     top_left = (lat + delta_lat, lon - delta_lon)
     bottom_right = (lat - delta_lat, lon + delta_lon)
     # Format as a bbox string: xmin, ymin, xmax, ymax
-    bbox = f"{top_left[1]},{bottom_right[0]},{bottom_right[1]},{top_left[0]}"
+    bbox = f"{top_left[1]},{bottom_right[0]},{bottom_right[1]},{top_left[0]}"  
     return bbox.replace("-", "t")
 
 

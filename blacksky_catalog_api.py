@@ -15,6 +15,7 @@ from PIL import Image, ImageChops
 import numpy as np
 import rasterio
 from rasterio.transform import from_bounds
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -23,6 +24,7 @@ columns = shutil.get_terminal_size().columns
 BLACKSKY_BASE_URL = "https://api.blacksky.com"
 AUTH_TOKEN = "R7RB3I4F7K3C276BUWZ4I4QUXHNT2TER"
 MAX_THREADS = 10
+BATCH_SIZE = 28
 
 
 def remove_black_borders(img):
@@ -274,8 +276,11 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     bboxes = [BBOX]
     current_date = datetime.strptime(START_DATE, "%Y-%m-%d")
     end_date = datetime.strptime(END_DATE, "%Y-%m-%d")
-
-    duration = (end_date - current_date).days + 1 # Inclusive of end_date
+    global BATCH_SIZE
+    date_difference = (end_date - current_date).days + 1
+    if date_difference < BATCH_SIZE:
+        BATCH_SIZE = date_difference
+    duration = math.ceil(date_difference / BATCH_SIZE)
     print("-" * columns)
     description = (
         f"Processing Blacksky Catalog \nDate Range: {current_date.date()} to {end_date.date()} \n"
@@ -283,17 +288,18 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     )
     print(description)
     print("-" * columns)
-    print("Duration :", duration, "days" if duration > 1 else "day")
+    print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
+    print("Duration :", duration, "batch")
 
-    with tqdm(total=duration, desc="", unit="date") as pbar:
+    with tqdm(total=duration, desc="", unit="batch") as pbar:
         while current_date <= end_date:  # Inclusive of end_date
             start_time = current_date.strftime("%Y-%m-%d")
-            end_time = (current_date + timedelta(days=1)).strftime("%Y-%m-%d")
+            end_time = (current_date + timedelta(days=BATCH_SIZE)).strftime("%Y-%m-%d")
 
             for bbox in bboxes:
                 fetch_and_process_records(AUTH_TOKEN, bbox, start_time, end_time)
 
-            current_date += timedelta(days=1)  # Move to the next day
+            current_date += timedelta(days=BATCH_SIZE)  # Move to the next day
             pbar.update(1)  # Update progress bar
 
         pbar.clear()
@@ -337,6 +343,6 @@ if __name__ == "__main__":
     OUTPUT_CSV_FILE = f"{OUTPUT_DIR}/output_blacksky.csv"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Check if the directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
     main(START_DATE, END_DATE, OUTPUT_DIR, BBOX)
+
+    check_csv_and_rename_output_dir(OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "blacksky")

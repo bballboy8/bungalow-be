@@ -18,6 +18,7 @@ from tqdm import tqdm
 import geohash2
 import shutil
 import math
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -120,7 +121,7 @@ LOCATIONS = [
     # {"name": "Subi Reef Naval Base", "lat": 10.92492, "lon": 114.0839},
     # {"name": "Cambodia Ream Naval Base", "lat": 10.50633, "lon": 103.61229},
     # {"name": "Mischief Reef Naval Base", "lat": 9.90389, "lon": 115.53561},
-    {"name": "Fiery Cross Reef Naval Base", "lat": 9.54874, "lon": 112.88915}
+    {"name": "capella"}
 ]
 
 
@@ -447,7 +448,7 @@ def search_images(lat, lon, bbox_size, start_date, end_date, access_token, outpu
             pbar.update(1)
             pbar.refresh()
             
-    tqdm.write(f"Completed Processing Capella Locations")
+    tqdm.write(f"Completed Processing Capella")
 
 
 def process_locations(locations, start_date, end_date, access_token, output_folder, filter_keyword, lat, lon, bbox_range):
@@ -463,14 +464,13 @@ def process_locations(locations, start_date, end_date, access_token, output_fold
         # end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
         for location in locations:
-            sanitized_name = sanitize_filename(location['name'])
-            location_output_folder = os.path.join(output_folder, sanitized_name)
-
+            location_output_folder = os.path.join(output_folder)
+            sanitized_name = "capella"
             # Create location-specific folders for thumbnails, geotiffs, geojsons, and CSV
             thumbnails_folder = os.path.join(location_output_folder, "thumbnails")
             geotiffs_folder = os.path.join(location_output_folder, "geotiffs")
             geojsons_folder = os.path.join(location_output_folder, "geojsons")
-            csv_file_path = os.path.join(location_output_folder, f"{sanitized_name}_output.csv")
+            csv_file_path = os.path.join(location_output_folder, f"output_{sanitized_name}.csv")
 
             # Ensure the directories exist
             os.makedirs(thumbnails_folder, exist_ok=True)
@@ -480,8 +480,13 @@ def process_locations(locations, start_date, end_date, access_token, output_fold
             search_images(lat, lon, bbox_range, start_date, end_date, access_token,
                         location_output_folder, sanitized_name, filter_keyword, csv_file_path)
             
-
-        print("All the Locations Processed")
+        check_csv_and_rename_output_dir(
+            base_output_folder,
+            start_date,
+            end_date,
+            OUTPUT_DIR,
+            "capella"
+        )
 
 
 def process_geojson_files(geojson_folder, start_date, end_date, access_token, output_folder, filter_keyword):
@@ -501,7 +506,7 @@ def process_geojson_files(geojson_folder, start_date, end_date, access_token, ou
         thumbnails_folder = os.path.join(output_folder_for_geojson, "thumbnails")
         geotiffs_folder = os.path.join(output_folder_for_geojson, "geotiffs")
         geojsons_folder = os.path.join(output_folder_for_geojson, "geojsons")
-        csv_file_path = os.path.join(output_folder_for_geojson, f"{sanitized_name}_output.csv")
+        csv_file_path = os.path.join(output_folder_for_geojson, f"output_{sanitized_name}.csv")
 
         # Ensure the directories exist
         os.makedirs(thumbnails_folder, exist_ok=True)
@@ -563,7 +568,7 @@ def geo_hash_handler(
         thumbnails_folder = os.path.join(location_output_folder, "thumbnails")
         geotiffs_folder = os.path.join(location_output_folder, "geotiffs")
         geojsons_folder = os.path.join(location_output_folder, "geojsons")
-        csv_file_path = os.path.join(location_output_folder, f"{sanitized_name}_output.csv")
+        csv_file_path = os.path.join(location_output_folder, f"output_{sanitized_name}.csv")
 
         # Ensure the directories exist
         os.makedirs(thumbnails_folder, exist_ok=True)
@@ -632,6 +637,7 @@ if __name__ == "__main__":
     LAT = args.lat
     LON = args.long
     BBOX_RANGE = args.range
+    OUTPUT_DIR = args.output_dir
     base_output_folder = args.output_dir + f"/capella/{START_DATE}_{END_DATE}"
 
     GEOJSON_FOLDER = f"{base_output_folder}/geojsons"

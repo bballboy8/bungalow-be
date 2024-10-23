@@ -14,6 +14,7 @@ import pygeohash as pgh
 import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import shutil
+from utils import check_csv_and_rename_output_dir
 
 # Get the terminal size
 columns = shutil.get_terminal_size().columns
@@ -22,6 +23,7 @@ columns = shutil.get_terminal_size().columns
 AUTH_TOKEN = "ZmFiMGQyYWEtODA5Ni00ZDAyLTkxN2QtYjAwNTg4NTc4OGNj"
 MAXAR_BASE_URL = "https://api.maxar.com/discovery/v1"
 MAX_THREADS = 10
+BATCH_SIZE = 28
 
 
 
@@ -118,7 +120,7 @@ def get_maxar_collections(
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:
-        print(f"An error occurred: {err}")
+        print(f"An error occurred: {response.text}")
 
     return None
 
@@ -126,13 +128,17 @@ def save_image(feature):
     """Downloads an image from the provided URL and saves it to the specified path."""
     try:
         url = feature.get('assets', {}).get('browse', {}).get('href')
-        save_path = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{feature.get('id')}.tif")
+        save_path_tif = os.path.join(OUTPUT_GEOTIFFS_FOLDER, f"{feature.get('id')}.tif")
+        save_path_png = os.path.join(OUTPUT_THUMBNAILS_FOLDER, f"{feature.get('id')}.png")
         headers = {"Accept": "application/json", "MAXAR-API-KEY": AUTH_TOKEN}
         response = requests.get(url, stream=True, headers=headers)
         response.raise_for_status()
-        
-        with open(save_path, 'wb') as out_file:
-            out_file.write(response.content)
+        content = response.content
+        with open(save_path_tif, 'wb') as out_file:
+            out_file.write(content)
+
+        with open(save_path_png, 'wb') as out_file:
+            out_file.write(content)
         
         return True
     except requests.RequestException as e:
@@ -220,23 +226,28 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     bboxes = [BBOX]
     current_date = datetime.strptime(START_DATE, '%Y-%m-%d')
     end_date = datetime.strptime(END_DATE, '%Y-%m-%d')
+    global BATCH_SIZE
+    date_difference = (end_date - current_date).days + 1  # Inclusive of end_date
+    if date_difference < BATCH_SIZE:
+            BATCH_SIZE = date_difference
+    duration = math.ceil(date_difference / BATCH_SIZE)
 
-    duration = (end_date - current_date).days + 1  # Inclusive of end_date
     print("-" * columns)
     description = (f"Processing Maxar Catalog \nDate Range: {current_date.date()} to {end_date.date()} \n"
                    f"lat: {LAT} and lon: {LON} Range: {RANGE} \nOutput Directory: {OUTPUT_DIR}")
     print(description)
     print("-" * columns)
-    print("Duration :", duration, "days" if duration > 1 else "day")
+    print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
+    print("Duration :", duration, "batch")
 
-    with tqdm(total=duration, desc="", unit="date") as pbar:
+    with tqdm(total=duration, desc="", unit="batch") as pbar:
         while current_date <= end_date:  # Inclusive of end_date
             start_time = current_date.strftime('%Y-%m-%d')
-            end_time = (current_date + timedelta(days=1)).strftime('%Y-%m-%d')
+            end_time = (current_date + timedelta(days=BATCH_SIZE)).strftime('%Y-%m-%d')
             for bbox in bboxes:
                 fetch_and_process_records(AUTH_TOKEN, bbox, start_time, end_time)
 
-            current_date += timedelta(days=1)  # Move to the next day
+            current_date += timedelta(days=BATCH_SIZE)  # Move to the next day
             pbar.update(1)  # Update progress bar
 
 
@@ -266,7 +277,10 @@ if __name__ == "__main__":
     print(f"Generated BBOX: {BBOX}")
 
 
-    OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/images"
+    OUTPUT_GEOTIFFS_FOLDER = f"{OUTPUT_DIR}/geotiffs"
+    os.makedirs(OUTPUT_GEOTIFFS_FOLDER, exist_ok=True)
+
+    OUTPUT_THUMBNAILS_FOLDER = f"{OUTPUT_DIR}/thumbnails"
     os.makedirs(OUTPUT_THUMBNAILS_FOLDER, exist_ok=True)
 
     OUTPUT_GEOJSON_FOLDER = f"{OUTPUT_DIR}/geojsons"
@@ -283,3 +297,4 @@ if __name__ == "__main__":
         OUTPUT_DIR,
         BBOX
     )
+    check_csv_and_rename_output_dir(OUTPUT_DIR, START_DATE, END_DATE, args.output_dir, "maxar")

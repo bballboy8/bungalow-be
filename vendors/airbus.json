@@ -1,0 +1,934 @@
+{
+    "error": false,
+    "itemsPerPage": 5,
+    "startIndex": 0,
+    "totalResults": 918,
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "_links": {
+                "delete": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4",
+                    "name": "Delete",
+                    "type": "HTTP"
+                },
+                "imagesGetBuffer": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/images/d524f2f4-7bac-4463-8221-1c18afd1a16c/buffer",
+                    "resourceId": "d524f2f4-7bac-4463-8221-1c18afd1a16c",
+                    "type": "getBuffer"
+                },
+                "imagesMetadata": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/images/d524f2f4-7bac-4463-8221-1c18afd1a16c/metadata",
+                    "resourceId": "d524f2f4-7bac-4463-8221-1c18afd1a16c",
+                    "type": "application/geo+json"
+                },
+                "imagesWcs": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/images/d524f2f4-7bac-4463-8221-1c18afd1a16c/wcs",
+                    "resourceId": "d524f2f4-7bac-4463-8221-1c18afd1a16c",
+                    "type": "WCS"
+                },
+                "imagesWms": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/images/d524f2f4-7bac-4463-8221-1c18afd1a16c/wms",
+                    "resourceId": "d524f2f4-7bac-4463-8221-1c18afd1a16c",
+                    "type": "WMS"
+                },
+                "imagesWmts": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/images/d524f2f4-7bac-4463-8221-1c18afd1a16c/wmts",
+                    "resourceId": "d524f2f4-7bac-4463-8221-1c18afd1a16c",
+                    "type": "WMTS"
+                },
+                "monitor": {
+                    "href": "https://monitor.foundation.api.oneatlas.airbus.com/api/v1/activities/1a001573-8c18-4fd1-9fd8-7ae4875607c1",
+                    "name": "Monitor",
+                    "type": "HTTP"
+                },
+                "quicklook": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/quicklook",
+                    "name": "QuickLook",
+                    "type": "HTTP"
+                },
+                "self": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch?id=ac56e548-df5d-4681-91dc-7f5ebcafabd4",
+                    "method": "GET",
+                    "name": "self",
+                    "resourceId": "ac56e548-df5d-4681-91dc-7f5ebcafabd4"
+                },
+                "thumbnail": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/thumbnail",
+                    "name": "Thumbnail",
+                    "type": "HTTP"
+                },
+                "wms": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/wms",
+                    "name": "WMS",
+                    "type": "WMS"
+                },
+                "wmts": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/ac56e548-df5d-4681-91dc-7f5ebcafabd4/wmts",
+                    "name": "WMTS",
+                    "type": "WMTS"
+                }
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            -122.6253463896,
+                            37.8891232125
+                        ],
+                        [
+                            -122.6247784619,
+                            37.7478556931
+                        ],
+                        [
+                            -122.6064561871,
+                            37.7476135666
+                        ],
+                        [
+                            -122.4806629668,
+                            37.7448208813
+                        ],
+                        [
+                            -122.4553566045,
+                            37.7436576586
+                        ],
+                        [
+                            -122.4302198281,
+                            37.7432198751
+                        ],
+                        [
+                            -122.368463885,
+                            37.7411711924
+                        ],
+                        [
+                            -122.3678503543,
+                            37.8821756944
+                        ],
+                        [
+                            -122.3862076951,
+                            37.8829091748
+                        ],
+                        [
+                            -122.4615412818,
+                            37.8853985867
+                        ],
+                        [
+                            -122.4742077882,
+                            37.8859239391
+                        ],
+                        [
+                            -122.5378015216,
+                            37.8874591337
+                        ],
+                        [
+                            -122.5504477375,
+                            37.887482178
+                        ],
+                        [
+                            -122.5630802707,
+                            37.88769562
+                        ],
+                        [
+                            -122.575766666,
+                            37.8881222767
+                        ],
+                        [
+                            -122.6253463896,
+                            37.8891232125
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "acquisitionDate": "2024-10-01T19:02:12.181Z",
+                "acquisitionIdentifier": "DS_PHR1B_202410011902121_FR1_PX_W123N37_0720_01107",
+                "acquisitionStation": "FR1",
+                "activityId": "1a001573-8c18-4fd1-9fd8-7ae4875607c1",
+                "archiveIdentifier": "DS_PHR1B_202410011902121_FR1_PX_W123N37_0720_01107",
+                "archivingCenter": "FR1",
+                "azimuthAngle": 179.9825835082219,
+                "cloudCover": 0,
+                "constellation": "PHR",
+                "correlationId": "f9e59879-0b6e-4f9d-9232-6b79ae5ac803",
+                "expirationDate": "2224-08-15T06:48:02.19787596Z",
+                "format": "image/tiff",
+                "geometryCentroid": {
+                    "lat": 37.81519255707526,
+                    "lon": -122.49659837194996
+                },
+                "id": "ac56e548-df5d-4681-91dc-7f5ebcafabd4",
+                "illuminationAzimuthAngle": 158.8820068715595,
+                "illuminationElevationAngle": 46.67558211192863,
+                "incidenceAngle": 29.39042931494178,
+                "incidenceAngleAcrossTrack": 3.443458994742546,
+                "incidenceAngleAlongTrack": 29.2500329988196,
+                "lastUpdateDate": "2024-10-02T07:04:50.598138012Z",
+                "organisationName": "AIRBUS DS GEO",
+                "parentIdentifier": "DS_PHR1B_202410011902121_FR1_PX_W123N37_0720_01107",
+                "platform": "PHR1B",
+                "processingCenter": "MOC",
+                "processingDate": "2024-10-01T22:10:45.101Z",
+                "processingLevel": "ALBUM",
+                "processorName": "MMCAT",
+                "productCategory": "image",
+                "productType": "mono",
+                "productionStatus": "ARCHIVED",
+                "publicationDate": "2024-10-02T07:04:50.598138012Z",
+                "qualified": false,
+                "resolution": 0.5,
+                "sensorType": "OPTICAL",
+                "snowCover": 0,
+                "sourceIdentifier": "DS_PHR1B_202410011902121_FR1_PX_W123N37_0720_01107",
+                "spectralRange": "VISIBLE",
+                "title": "",
+                "workspaceId": "0e33eb50-3404-48ad-b835-b0b4b72a5625",
+                "workspaceName": "public",
+                "workspaceTitle": "Public"
+            },
+            "rights": {
+                "browse": {},
+                "wms": {},
+                "wmts": {}
+            },
+            "type": "Feature"
+        },
+        {
+            "_links": {
+                "delete": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d",
+                    "name": "Delete",
+                    "type": "HTTP"
+                },
+                "imagesGetBuffer": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/images/3337cda9-afd2-4551-a513-3d15fc677131/buffer",
+                    "resourceId": "3337cda9-afd2-4551-a513-3d15fc677131",
+                    "type": "getBuffer"
+                },
+                "imagesMetadata": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/images/3337cda9-afd2-4551-a513-3d15fc677131/metadata",
+                    "resourceId": "3337cda9-afd2-4551-a513-3d15fc677131",
+                    "type": "application/geo+json"
+                },
+                "imagesWcs": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/images/3337cda9-afd2-4551-a513-3d15fc677131/wcs",
+                    "resourceId": "3337cda9-afd2-4551-a513-3d15fc677131",
+                    "type": "WCS"
+                },
+                "imagesWms": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/images/3337cda9-afd2-4551-a513-3d15fc677131/wms",
+                    "resourceId": "3337cda9-afd2-4551-a513-3d15fc677131",
+                    "type": "WMS"
+                },
+                "imagesWmts": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/images/3337cda9-afd2-4551-a513-3d15fc677131/wmts",
+                    "resourceId": "3337cda9-afd2-4551-a513-3d15fc677131",
+                    "type": "WMTS"
+                },
+                "monitor": {
+                    "href": "https://monitor.foundation.api.oneatlas.airbus.com/api/v1/activities/161b5153-c3ec-4959-a2e4-98a2ec0ca616",
+                    "name": "Monitor",
+                    "type": "HTTP"
+                },
+                "quicklook": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/quicklook",
+                    "name": "QuickLook",
+                    "type": "HTTP"
+                },
+                "self": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch?id=673a1b76-3ad1-41f5-ba12-a1311518b01d",
+                    "method": "GET",
+                    "name": "self",
+                    "resourceId": "673a1b76-3ad1-41f5-ba12-a1311518b01d"
+                },
+                "thumbnail": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/thumbnail",
+                    "name": "Thumbnail",
+                    "type": "HTTP"
+                },
+                "wms": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/wms",
+                    "name": "WMS",
+                    "type": "WMS"
+                },
+                "wmts": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/673a1b76-3ad1-41f5-ba12-a1311518b01d/wmts",
+                    "name": "WMTS",
+                    "type": "WMTS"
+                }
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            -122.4219517849,
+                            37.8868545453
+                        ],
+                        [
+                            -122.421501451,
+                            37.7482046585
+                        ],
+                        [
+                            -122.4037912616,
+                            37.7482201193
+                        ],
+                        [
+                            -122.3189288582,
+                            37.7472597999
+                        ],
+                        [
+                            -122.1733796643,
+                            37.7437504585
+                        ],
+                        [
+                            -122.1727772124,
+                            37.8812214185
+                        ],
+                        [
+                            -122.1905464482,
+                            37.8818836709
+                        ],
+                        [
+                            -122.2144802873,
+                            37.8819593481
+                        ],
+                        [
+                            -122.2266699438,
+                            37.8823203128
+                        ],
+                        [
+                            -122.2634882117,
+                            37.8842594601
+                        ],
+                        [
+                            -122.3127857886,
+                            37.8855699863
+                        ],
+                        [
+                            -122.4219517849,
+                            37.8868545453
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "acquisitionDate": "2024-10-01T19:02:03.93Z",
+                "acquisitionIdentifier": "DS_PHR1B_202410011902039_FR1_PX_W123N37_0920_01164",
+                "acquisitionStation": "FR1",
+                "activityId": "161b5153-c3ec-4959-a2e4-98a2ec0ca616",
+                "archiveIdentifier": "DS_PHR1B_202410011902039_FR1_PX_W123N37_0920_01164",
+                "archivingCenter": "FR1",
+                "azimuthAngle": 180.025052691172,
+                "cloudCover": 0,
+                "constellation": "PHR",
+                "correlationId": "f9e59879-0b6e-4f9d-9232-6b79ae5ac803",
+                "expirationDate": "2224-08-15T06:48:02.197867284Z",
+                "format": "image/tiff",
+                "geometryCentroid": {
+                    "lat": 37.81534499394604,
+                    "lon": -122.2973644986501
+                },
+                "id": "673a1b76-3ad1-41f5-ba12-a1311518b01d",
+                "illuminationAzimuthAngle": 159.1614063396773,
+                "illuminationElevationAngle": 46.72826618393828,
+                "incidenceAngle": 25.32489592967744,
+                "incidenceAngleAcrossTrack": 2.939254086871705,
+                "incidenceAngleAlongTrack": 25.19397705653481,
+                "lastUpdateDate": "2024-10-02T07:01:43.65843308Z",
+                "organisationName": "AIRBUS DS GEO",
+                "parentIdentifier": "DS_PHR1B_202410011902039_FR1_PX_W123N37_0920_01164",
+                "platform": "PHR1B",
+                "processingCenter": "MOC",
+                "processingDate": "2024-10-01T22:11:09.132Z",
+                "processingLevel": "ALBUM",
+                "processorName": "MMCAT",
+                "productCategory": "image",
+                "productType": "mono",
+                "productionStatus": "ARCHIVED",
+                "publicationDate": "2024-10-02T07:01:43.65843308Z",
+                "qualified": false,
+                "resolution": 0.5,
+                "sensorType": "OPTICAL",
+                "snowCover": 0,
+                "sourceIdentifier": "DS_PHR1B_202410011902039_FR1_PX_W123N37_0920_01164",
+                "spectralRange": "VISIBLE",
+                "title": "",
+                "workspaceId": "0e33eb50-3404-48ad-b835-b0b4b72a5625",
+                "workspaceName": "public",
+                "workspaceTitle": "Public"
+            },
+            "rights": {
+                "browse": {},
+                "wms": {},
+                "wmts": {}
+            },
+            "type": "Feature"
+        },
+        {
+            "_links": {
+                "delete": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22",
+                    "name": "Delete",
+                    "type": "HTTP"
+                },
+                "imagesGetBuffer": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/ceed8782-1968-40e9-a13d-5662539e7cfd/buffer",
+                        "name": "multispectral",
+                        "resourceId": "ceed8782-1968-40e9-a13d-5662539e7cfd",
+                        "type": "getBuffer"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/0629ffba-9105-4f18-ada9-8a076505b2ee/buffer",
+                        "name": "panchromatic",
+                        "resourceId": "0629ffba-9105-4f18-ada9-8a076505b2ee",
+                        "type": "getBuffer"
+                    }
+                ],
+                "imagesMetadata": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/ceed8782-1968-40e9-a13d-5662539e7cfd/metadata",
+                        "name": "multispectral",
+                        "resourceId": "ceed8782-1968-40e9-a13d-5662539e7cfd",
+                        "type": "application/geo+json"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/0629ffba-9105-4f18-ada9-8a076505b2ee/metadata",
+                        "name": "panchromatic",
+                        "resourceId": "0629ffba-9105-4f18-ada9-8a076505b2ee",
+                        "type": "application/geo+json"
+                    }
+                ],
+                "imagesWcs": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/ceed8782-1968-40e9-a13d-5662539e7cfd/wcs",
+                        "name": "multispectral",
+                        "resourceId": "ceed8782-1968-40e9-a13d-5662539e7cfd",
+                        "type": "WCS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/0629ffba-9105-4f18-ada9-8a076505b2ee/wcs",
+                        "name": "panchromatic",
+                        "resourceId": "0629ffba-9105-4f18-ada9-8a076505b2ee",
+                        "type": "WCS"
+                    }
+                ],
+                "imagesWms": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/ceed8782-1968-40e9-a13d-5662539e7cfd/wms",
+                        "name": "multispectral",
+                        "resourceId": "ceed8782-1968-40e9-a13d-5662539e7cfd",
+                        "type": "WMS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/0629ffba-9105-4f18-ada9-8a076505b2ee/wms",
+                        "name": "panchromatic",
+                        "resourceId": "0629ffba-9105-4f18-ada9-8a076505b2ee",
+                        "type": "WMS"
+                    }
+                ],
+                "imagesWmts": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/ceed8782-1968-40e9-a13d-5662539e7cfd/wmts",
+                        "name": "multispectral",
+                        "resourceId": "ceed8782-1968-40e9-a13d-5662539e7cfd",
+                        "type": "WMTS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/images/0629ffba-9105-4f18-ada9-8a076505b2ee/wmts",
+                        "name": "panchromatic",
+                        "resourceId": "0629ffba-9105-4f18-ada9-8a076505b2ee",
+                        "type": "WMTS"
+                    }
+                ],
+                "monitor": {
+                    "href": "https://monitor.foundation.api.oneatlas.airbus.com/api/v1/activities/379c49a1-beb3-4fdf-9262-3beb6e503be5",
+                    "name": "Monitor",
+                    "type": "HTTP"
+                },
+                "quicklook": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/quicklook",
+                    "name": "QuickLook",
+                    "type": "HTTP"
+                },
+                "self": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch?id=3d4c5ef3-1edc-4956-a1c3-5df816a59c22",
+                    "method": "GET",
+                    "name": "self",
+                    "resourceId": "3d4c5ef3-1edc-4956-a1c3-5df816a59c22"
+                },
+                "thumbnail": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/thumbnail",
+                    "name": "Thumbnail",
+                    "type": "HTTP"
+                },
+                "wms": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/wms",
+                    "name": "WMS",
+                    "type": "WMS"
+                },
+                "wmts": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/3d4c5ef3-1edc-4956-a1c3-5df816a59c22/wmts",
+                    "name": "WMTS",
+                    "type": "WMTS"
+                }
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            -122.2858123487126,
+                            37.62317190031845
+                        ],
+                        [
+                            -122.5337896982945,
+                            37.61834258390902
+                        ],
+                        [
+                            -122.5333300153436,
+                            37.51052583587781
+                        ],
+                        [
+                            -122.2860650937978,
+                            37.5163294635097
+                        ],
+                        [
+                            -122.2858123487126,
+                            37.62317190031845
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "acquisitionDate": "2024-09-12T18:57:40.556Z",
+                "acquisitionIdentifier": "DS_PHR1B_202409121857405_FR1_PX_W123N37_0814_01048",
+                "acquisitionStation": "FR1",
+                "activityId": "379c49a1-beb3-4fdf-9262-3beb6e503be5",
+                "archiveIdentifier": "DS_PHR1B_202409121857405_FR1_PX_W123N37_0814_01048",
+                "archivingCenter": "FR1",
+                "azimuthAngle": 179.9999582668167,
+                "cloudCover": 6.84,
+                "commercialReference": "SO24030838",
+                "constellation": "PHR",
+                "correlationId": "af965a22-f8d7-4b5b-9ea9-a1da321a0ec1",
+                "customerReference": "C301000",
+                "expirationDate": "2027-09-13T21:05:25.23030014Z",
+                "format": "image/jp2",
+                "geometryCentroid": {
+                    "lat": 37.56689950522925,
+                    "lon": -122.40980102350477
+                },
+                "id": "3d4c5ef3-1edc-4956-a1c3-5df816a59c22",
+                "illuminationAzimuthAngle": 150.8038589543949,
+                "illuminationElevationAngle": 52.88944514177707,
+                "incidenceAngle": 17.9102153173056,
+                "incidenceAngleAcrossTrack": 17.18647825476224,
+                "incidenceAngleAlongTrack": -5.355599422912525,
+                "lastUpdateDate": "2024-09-13T21:05:25.230288246Z",
+                "organisationName": "AIRBUS DS GEO",
+                "parentIdentifier": "DS_PHR1B_202409121857405_FR1_PX_W123N37_0814_01048",
+                "platform": "PHR1B",
+                "processingCenter": "FCMUGC",
+                "processingDate": "2024-09-13T19:51:28.284",
+                "processingLevel": "SENSOR",
+                "processorName": "DRS-MM V2.9vV2.9",
+                "productCategory": "image",
+                "productType": "bundle",
+                "productionStatus": "IN_CLOUD",
+                "publicationDate": "2024-09-13T21:05:25.230288246Z",
+                "qualified": false,
+                "resolution": 0.5,
+                "sensorType": "OPTICAL",
+                "sourceIdentifier": "DS_PHR1B_202409121857035_FR1_PX_W123N37_0814_01044",
+                "spectralRange": "VISIBLE",
+                "workspaceId": "0e33eb50-3404-48ad-b835-b0b4b72a5625",
+                "workspaceName": "public",
+                "workspaceTitle": "Public"
+            },
+            "rights": {
+                "browse": {},
+                "wms": {},
+                "wmts": {}
+            },
+            "type": "Feature"
+        },
+        {
+            "_links": {
+                "delete": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f",
+                    "name": "Delete",
+                    "type": "HTTP"
+                },
+                "imagesGetBuffer": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0/buffer",
+                        "name": "panchromatic",
+                        "resourceId": "afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0",
+                        "type": "getBuffer"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/297fcbbb-35a8-42c5-a6f3-3d0137d847a4/buffer",
+                        "name": "multispectral",
+                        "resourceId": "297fcbbb-35a8-42c5-a6f3-3d0137d847a4",
+                        "type": "getBuffer"
+                    }
+                ],
+                "imagesMetadata": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0/metadata",
+                        "name": "panchromatic",
+                        "resourceId": "afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0",
+                        "type": "application/geo+json"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/297fcbbb-35a8-42c5-a6f3-3d0137d847a4/metadata",
+                        "name": "multispectral",
+                        "resourceId": "297fcbbb-35a8-42c5-a6f3-3d0137d847a4",
+                        "type": "application/geo+json"
+                    }
+                ],
+                "imagesWcs": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0/wcs",
+                        "name": "panchromatic",
+                        "resourceId": "afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0",
+                        "type": "WCS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/297fcbbb-35a8-42c5-a6f3-3d0137d847a4/wcs",
+                        "name": "multispectral",
+                        "resourceId": "297fcbbb-35a8-42c5-a6f3-3d0137d847a4",
+                        "type": "WCS"
+                    }
+                ],
+                "imagesWms": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0/wms",
+                        "name": "panchromatic",
+                        "resourceId": "afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0",
+                        "type": "WMS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/297fcbbb-35a8-42c5-a6f3-3d0137d847a4/wms",
+                        "name": "multispectral",
+                        "resourceId": "297fcbbb-35a8-42c5-a6f3-3d0137d847a4",
+                        "type": "WMS"
+                    }
+                ],
+                "imagesWmts": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0/wmts",
+                        "name": "panchromatic",
+                        "resourceId": "afbf45e4-6a2a-4db7-a0b1-3f5fa1befed0",
+                        "type": "WMTS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/images/297fcbbb-35a8-42c5-a6f3-3d0137d847a4/wmts",
+                        "name": "multispectral",
+                        "resourceId": "297fcbbb-35a8-42c5-a6f3-3d0137d847a4",
+                        "type": "WMTS"
+                    }
+                ],
+                "monitor": {
+                    "href": "https://monitor.foundation.api.oneatlas.airbus.com/api/v1/activities/d20f7661-de84-4157-aa88-7542931c927c",
+                    "name": "Monitor",
+                    "type": "HTTP"
+                },
+                "quicklook": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/quicklook",
+                    "name": "QuickLook",
+                    "type": "HTTP"
+                },
+                "self": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch?id=86fee83b-d260-4ccd-901c-182dc60c010f",
+                    "method": "GET",
+                    "name": "self",
+                    "resourceId": "86fee83b-d260-4ccd-901c-182dc60c010f"
+                },
+                "thumbnail": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/thumbnail",
+                    "name": "Thumbnail",
+                    "type": "HTTP"
+                },
+                "wms": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/wms",
+                    "name": "WMS",
+                    "type": "WMS"
+                },
+                "wmts": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/86fee83b-d260-4ccd-901c-182dc60c010f/wmts",
+                    "name": "WMTS",
+                    "type": "WMTS"
+                }
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            -122.5313307274919,
+                            37.62618731353559
+                        ],
+                        [
+                            -122.530878628257,
+                            37.51819934257039
+                        ],
+                        [
+                            -122.2885148314236,
+                            37.51113124300076
+                        ],
+                        [
+                            -122.2883404449988,
+                            37.61841569550196
+                        ],
+                        [
+                            -122.5313307274919,
+                            37.62618731353559
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "acquisitionDate": "2024-09-12T18:58:04.556Z",
+                "acquisitionIdentifier": "DS_PHR1B_202409121858045_FR1_PX_W123N37_0814_01048",
+                "acquisitionStation": "FR1",
+                "activityId": "d20f7661-de84-4157-aa88-7542931c927c",
+                "archiveIdentifier": "DS_PHR1B_202409121858045_FR1_PX_W123N37_0814_01048",
+                "archivingCenter": "FR1",
+                "azimuthAngle": 179.9924762266242,
+                "cloudCover": 6.42,
+                "commercialReference": "SO24030838",
+                "constellation": "PHR",
+                "correlationId": "7f661afb-7987-4df9-a0f5-0df82e4cfafd",
+                "customerReference": "C301000",
+                "expirationDate": "2027-09-13T20:10:23.966740176Z",
+                "format": "image/jp2",
+                "geometryCentroid": {
+                    "lat": 37.568706720066245,
+                    "lon": -122.40983558624457
+                },
+                "id": "86fee83b-d260-4ccd-901c-182dc60c010f",
+                "illuminationAzimuthAngle": 151.186224310277,
+                "illuminationElevationAngle": 52.98462515881548,
+                "incidenceAngle": 16.76643231415627,
+                "incidenceAngleAcrossTrack": 14.27523653437577,
+                "incidenceAngleAlongTrack": 9.165165652297908,
+                "lastUpdateDate": "2024-09-13T20:10:23.966731191Z",
+                "organisationName": "AIRBUS DS GEO",
+                "parentIdentifier": "DS_PHR1B_202409121858045_FR1_PX_W123N37_0814_01048",
+                "platform": "PHR1B",
+                "processingCenter": "FCMUGC",
+                "processingDate": "2024-09-13T19:07:26.758",
+                "processingLevel": "SENSOR",
+                "processorName": "DRS-MM V2.9vV2.9",
+                "productCategory": "image",
+                "productType": "bundle",
+                "productionStatus": "IN_CLOUD",
+                "publicationDate": "2024-09-13T20:10:23.966731191Z",
+                "qualified": false,
+                "resolution": 0.5,
+                "sensorType": "OPTICAL",
+                "sourceIdentifier": "DS_PHR1B_202409121857275_FR1_PX_W123N37_0814_01044",
+                "spectralRange": "VISIBLE",
+                "workspaceId": "0e33eb50-3404-48ad-b835-b0b4b72a5625",
+                "workspaceName": "public",
+                "workspaceTitle": "Public"
+            },
+            "rights": {
+                "browse": {},
+                "wms": {},
+                "wmts": {}
+            },
+            "type": "Feature"
+        },
+        {
+            "_links": {
+                "delete": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb",
+                    "name": "Delete",
+                    "type": "HTTP"
+                },
+                "imagesGetBuffer": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/2f1107fb-c430-47fd-a7d8-8418b4ee449f/buffer",
+                        "name": "panchromatic",
+                        "resourceId": "2f1107fb-c430-47fd-a7d8-8418b4ee449f",
+                        "type": "getBuffer"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/011e241a-a848-44c5-a765-529786dec80f/buffer",
+                        "name": "multispectral",
+                        "resourceId": "011e241a-a848-44c5-a765-529786dec80f",
+                        "type": "getBuffer"
+                    }
+                ],
+                "imagesMetadata": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/2f1107fb-c430-47fd-a7d8-8418b4ee449f/metadata",
+                        "name": "panchromatic",
+                        "resourceId": "2f1107fb-c430-47fd-a7d8-8418b4ee449f",
+                        "type": "application/geo+json"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/011e241a-a848-44c5-a765-529786dec80f/metadata",
+                        "name": "multispectral",
+                        "resourceId": "011e241a-a848-44c5-a765-529786dec80f",
+                        "type": "application/geo+json"
+                    }
+                ],
+                "imagesWcs": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/2f1107fb-c430-47fd-a7d8-8418b4ee449f/wcs",
+                        "name": "panchromatic",
+                        "resourceId": "2f1107fb-c430-47fd-a7d8-8418b4ee449f",
+                        "type": "WCS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/011e241a-a848-44c5-a765-529786dec80f/wcs",
+                        "name": "multispectral",
+                        "resourceId": "011e241a-a848-44c5-a765-529786dec80f",
+                        "type": "WCS"
+                    }
+                ],
+                "imagesWms": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/2f1107fb-c430-47fd-a7d8-8418b4ee449f/wms",
+                        "name": "panchromatic",
+                        "resourceId": "2f1107fb-c430-47fd-a7d8-8418b4ee449f",
+                        "type": "WMS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/011e241a-a848-44c5-a765-529786dec80f/wms",
+                        "name": "multispectral",
+                        "resourceId": "011e241a-a848-44c5-a765-529786dec80f",
+                        "type": "WMS"
+                    }
+                ],
+                "imagesWmts": [
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/2f1107fb-c430-47fd-a7d8-8418b4ee449f/wmts",
+                        "name": "panchromatic",
+                        "resourceId": "2f1107fb-c430-47fd-a7d8-8418b4ee449f",
+                        "type": "WMTS"
+                    },
+                    {
+                        "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/images/011e241a-a848-44c5-a765-529786dec80f/wmts",
+                        "name": "multispectral",
+                        "resourceId": "011e241a-a848-44c5-a765-529786dec80f",
+                        "type": "WMTS"
+                    }
+                ],
+                "monitor": {
+                    "href": "https://monitor.foundation.api.oneatlas.airbus.com/api/v1/activities/e07f89bf-0c12-4d7b-b6cd-7e5eb0915d73",
+                    "name": "Monitor",
+                    "type": "HTTP"
+                },
+                "quicklook": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/quicklook",
+                    "name": "QuickLook",
+                    "type": "HTTP"
+                },
+                "self": {
+                    "href": "https://search.foundation.api.oneatlas.airbus.com/api/v2/opensearch?id=fac7eb01-8209-4fa1-b417-065703c443fb",
+                    "method": "GET",
+                    "name": "self",
+                    "resourceId": "fac7eb01-8209-4fa1-b417-065703c443fb"
+                },
+                "thumbnail": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/thumbnail",
+                    "name": "Thumbnail",
+                    "type": "HTTP"
+                },
+                "wms": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/wms",
+                    "name": "WMS",
+                    "type": "WMS"
+                },
+                "wmts": {
+                    "href": "https://access.foundation.api.oneatlas.airbus.com/api/v1/items/fac7eb01-8209-4fa1-b417-065703c443fb/wmts",
+                    "name": "WMTS",
+                    "type": "WMTS"
+                }
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            -122.40601209597634,
+                            37.652954977075126
+                        ],
+                        [
+                            -122.56803128814478,
+                            37.65113930446917
+                        ],
+                        [
+                            -122.56795622572419,
+                            37.38945978971283
+                        ],
+                        [
+                            -122.40616965675119,
+                            37.39015535360591
+                        ],
+                        [
+                            -122.40601209597634,
+                            37.652954977075126
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "acquisitionDate": "2024-08-16T19:07:15.443Z",
+                "acquisitionIdentifier": "ACQ_PNEO4_04634713114816",
+                "activityId": "e07f89bf-0c12-4d7b-b6cd-7e5eb0915d73",
+                "azimuthAngle": 240.62717160463885,
+                "cloudCover": 0.7119704647208539,
+                "commercialReference": "000241603",
+                "constellation": "PNEO",
+                "contractId": "CTR22000671",
+                "correlationId": "PWOI_000241603_4_1_D_1",
+                "customerReference": "BP_PNEO_BO_OA_LL_World_20082024_1",
+                "expirationDate": "2026-02-20T06:02:54Z",
+                "format": "SAFIR",
+                "geometryCentroid": {
+                    "lat": 37.52115750222582,
+                    "lon": -122.48702169206108
+                },
+                "id": "fac7eb01-8209-4fa1-b417-065703c443fb",
+                "illuminationAzimuthAngle": 143.31580006326118,
+                "illuminationElevationAngle": 62.03125541963063,
+                "incidenceAngle": 8.693608860249466,
+                "incidenceAngleAcrossTrack": -7.553783546517532,
+                "incidenceAngleAlongTrack": 4.429339707106523,
+                "internalLine": "4_1",
+                "internalReference": "SAL24222705",
+                "lastUpdateDate": "2024-08-21T18:02:54Z",
+                "organisationName": "",
+                "platform": "PNEO4",
+                "processingCenter": "",
+                "processingDate": "2024-08-21T17:47:36.851Z",
+                "processingLevel": "SENSOR",
+                "processorName": "SPICYv4.1.2",
+                "productCategory": "image",
+                "productType": "bundle",
+                "productionStatus": "IN_CLOUD",
+                "publicationDate": "2024-08-21T17:59:43.046202824Z",
+                "qualified": false,
+                "resolution": 0.3,
+                "sensorType": "OPTICAL",
+                "spectralRange": "VISIBLE",
+                "workspaceId": "3e88441b-adc9-4be6-bd80-59d4fb69d5a7",
+                "workspaceName": "public-pneo",
+                "workspaceTitle": "Workspace temporaire pour la data pneo"
+            },
+            "rights": {
+                "browse": {},
+                "wms": {},
+                "wmts": {}
+            },
+            "type": "Feature"
+        }
+    ]
+}
