@@ -458,9 +458,9 @@ def skyfi_executor(
     print(description)
     print("-"*columns)
     print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
-    print("Duration :", duration)
+    print("Duration :", duration, "batch")
 
-    with tqdm(total=duration, desc="", unit="date") as pbar:
+    with tqdm(total=duration, desc="", unit="batch") as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
 

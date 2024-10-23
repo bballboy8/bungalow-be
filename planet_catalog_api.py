@@ -388,9 +388,9 @@ def main(START_DATE, END_DATE, OUTPUT_DIR, BBOX):
     print(description)
     print("-"*columns)
     print("Batch Size: ", BATCH_SIZE, ", days: ", date_difference)
-    print("Duration :", duration)
+    print("Duration :", duration, "batch")
     # Iterate over each day in the date range
-    with tqdm(total=duration, desc="", unit="date") as pbar:
+    with tqdm(total=duration, desc="", unit="batch") as pbar:
 
         while current_date <= end_date:
             start_time = current_date.strftime('%Y-%m-%dT00:00:00Z')
