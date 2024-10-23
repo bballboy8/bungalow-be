@@ -27,7 +27,6 @@ from rasterio.transform import from_bounds
 import argparse
 from tqdm import tqdm
 import threading
-from pyproj import Geod
 from utils import check_folder_content_and_rename_output_dir, latlon_to_wkt
 import math
 
@@ -95,16 +94,15 @@ def save_image(url, save_path):
 
 # Function to get the corners of the geohash
 
-def latlon_to_bbox(lat, lon, range_km):
+def latlon_to_bbox(lat, lon, range_meters):
     """Generate a bounding box from a lat, lon and range in km."""
-    geod = Geod(ellps="WGS84")
-    north_lat, north_lon, _ = geod.fwd(lon, lat, 0, range_km * 1000)  # move north by range_km
-    south_lat, south_lon, _ = geod.fwd(lon, lat, 180, range_km * 1000)  # move south by range_km
-    east_lat, east_lon, _ = geod.fwd(lon, lat, 90, range_km * 1000)  # move east by range_km
-    west_lat, west_lon, _ = geod.fwd(lon, lat, 270, range_km * 1000)  # move west by range_km
+    delta_lat = range_meters/111000.0
+    delta_lon = range_meters / (111000.0 * math.cos(math.radians(lat)))
+    top_left = (lat + delta_lat, lon - delta_lon)
+    bottom_right = (lat - delta_lat, lon + delta_lon)
     
     # Format as bbox string: xmin (west), ymin (south), xmax (east), ymax (north)
-    return [west_lon, south_lat, east_lon, north_lat]
+    return [top_left[1], top_left[0], bottom_right[1], bottom_right[0]]
 
 def get_geohash_corners(geohash):
     try:
