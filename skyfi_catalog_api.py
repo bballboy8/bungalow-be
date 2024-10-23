@@ -280,7 +280,6 @@ def search_skyfi_archive(aoi, from_date, to_date, product_types):
             "aoi": aoi,
             "fromDate": from_date,
             "toDate": to_date,
-            "productTypes": product_types,
             "pageNumber": next_page,
             "pageSize": 100
         }
