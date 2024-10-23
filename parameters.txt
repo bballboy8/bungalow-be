@@ -1,6 +1,6 @@
 start_date=2024-10-01
-end_date=2024-10-20
-lat=21.225809021119527
-long=110.38540963431176
+end_date=2024-10-17
+lat=21.227853
+long=110.4300
 range=150
-output_dir=D:\Work\bungalow-be\output
+output_dir=D:\Work\bungalow-be\output2
